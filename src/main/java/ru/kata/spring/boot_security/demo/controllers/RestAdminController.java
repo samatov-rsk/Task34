@@ -32,13 +32,12 @@ public class RestAdminController {
 
     @GetMapping
     public ResponseEntity<List<User>> getAllUsers() {
-        List<User> users = userDao.getAllUsers();
-        return ResponseEntity.ok(users);
+        return ResponseEntity.ok(userDao.getAllUsers());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable Long id) {
-        User user = userDao.getUserById(id);
+    public ResponseEntity<User> getUserById(@PathVariable Integer userId) {
+        User user = userDao.getUserById(userId);
         if (user != null) {
             return ResponseEntity.ok(user);
         } else {
@@ -53,15 +52,15 @@ public class RestAdminController {
     }
 
     @PutMapping("{id}")
-    public ResponseEntity<User> updateUsers(@PathVariable Long id, @RequestBody User updatedUser) {
-        userDao.updateUser(id, updatedUser);
+    public ResponseEntity<User> updateUsers(@PathVariable Integer userId, @RequestBody User userToUpdate) {
+        userDao.updateUser(userId, userToUpdate);
 
-        return ResponseEntity.ok(updatedUser);
+        return ResponseEntity.ok(userToUpdate);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
-        userDao.removeUser(id);
+    public ResponseEntity<Void> deleteUser(@PathVariable Integer userId) {
+        userDao.removeUser(userId);
         return ResponseEntity.noContent().build();
     }
 

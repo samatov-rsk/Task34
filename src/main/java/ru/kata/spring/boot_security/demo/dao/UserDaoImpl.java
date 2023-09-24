@@ -11,8 +11,6 @@ import ru.kata.spring.boot_security.demo.repositiories.UserRepository;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Component
-@Transactional
 public class UserDaoImpl implements UserDao {
 
     private final UserRepository userRepository;
@@ -24,16 +22,19 @@ public class UserDaoImpl implements UserDao {
         this.roleRepository = roleRepository;
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<User> getAllUsers() {
         return userRepository.findAll();
     }
 
+    @Transactional(readOnly = true)
     @Override
-    public User getUserById(long id) {
-        return userRepository.findById(id).orElseThrow();
+    public User getUserById(Integer userId) {
+        return userRepository.findById(userId).orElseThrow();
     }
 
+    @Transactional
     @Override
     public void addUser(User user) {
         List<Role> userRoles = roleRepository.findAllByNameIn(user.getRoles()
@@ -42,14 +43,16 @@ public class UserDaoImpl implements UserDao {
         userRepository.save(user);
     }
 
+    @Transactional
     @Override
-    public void removeUser(long id) {
-        userRepository.delete(userRepository.getById(id));
+    public void removeUser(Integer userId) {
+        userRepository.delete(userRepository.getById(userId));
     }
 
+    @Transactional
     @Override
-    public void updateUser(Long id, User updatedUser) {
-        User existingUser = getUserById(id);
+    public void updateUser(Integer userId, User updatedUser) {
+        User existingUser = getUserById(userId);
 
         existingUser.setName(updatedUser.getName());
         existingUser.setSurname(updatedUser.getSurname());

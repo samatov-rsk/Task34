@@ -11,7 +11,6 @@ import ru.kata.spring.boot_security.demo.models.User;
 
 import java.security.Principal;
 
-@CrossOrigin(origins = "http://localhost:8089/admin", methods = {RequestMethod.GET, RequestMethod.PUT, RequestMethod.DELETE})
 @RequestMapping("/admin")
 @Controller
 public class AdminController {

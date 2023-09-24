@@ -17,7 +17,6 @@ import java.util.Collection;
 import java.util.stream.Collectors;
 
 @Service
-@Transactional
 public class UserService implements UserDetailsService {
     private final UserRepository userRepository;
 
