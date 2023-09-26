@@ -1,5 +1,6 @@
 package ru.kata.spring.boot_security.demo.controllers;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -25,6 +26,7 @@ public class RestAdminController {
     private final UserDaoImpl userDao;
     private final UserService userService;
 
+    @Autowired
     public RestAdminController(UserDaoImpl userDao, UserService userService) {
         this.userDao = userDao;
         this.userService = userService;
