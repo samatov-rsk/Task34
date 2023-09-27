@@ -1,11 +1,7 @@
 package ru.kata.spring.boot_security.demo.models;
 
-import org.springframework.stereotype.Component;
-
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
@@ -14,7 +10,9 @@ import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 import java.util.List;
 
-import static javax.persistence.GenerationType.*;
+import static javax.persistence.CascadeType.MERGE;
+import static javax.persistence.FetchType.EAGER;
+import static javax.persistence.GenerationType.IDENTITY;
 
 @Entity
 @Table(name = "users")
@@ -23,7 +21,7 @@ public class User {
     @GeneratedValue(strategy = IDENTITY)
     @Id
     @Column(name = "id")
-    private Long id;
+    private Integer id;
 
     @Column(name = "name")
     private String username;
@@ -40,13 +38,13 @@ public class User {
     @Column(name = "password")
     private String password;
 
-    @ManyToMany(cascade = CascadeType.MERGE, fetch = FetchType.EAGER)
+    @ManyToMany(cascade = MERGE, fetch = EAGER)
     @JoinTable(name = "users_roles",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id"))
     private List<Role> roles;
 
-    public User(Long id, String username, String surname, int age, String email, String password, List<Role> roles) {
+    public User(Integer id, String username, String surname, int age, String email, String password, List<Role> roles) {
         this.id = id;
         this.username = username;
         this.surname = surname;
@@ -59,11 +57,11 @@ public class User {
     public User() {
     }
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 

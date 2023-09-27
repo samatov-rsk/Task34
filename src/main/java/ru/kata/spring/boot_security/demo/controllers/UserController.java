@@ -3,26 +3,26 @@ package ru.kata.spring.boot_security.demo.controllers;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import ru.kata.spring.boot_security.demo.configs.service.UserService;
 import ru.kata.spring.boot_security.demo.models.User;
+import ru.kata.spring.boot_security.demo.repositiories.UserRepository;
 
 import java.security.Principal;
 
 @Controller
 public class UserController {
 
-    private final UserService userService;
+    private final UserRepository userRepository;
 
-    public UserController(UserService userService) {
-        this.userService = userService;
+    public UserController(UserRepository userRepository) {
+        this.userRepository = userRepository;
     }
 
     @GetMapping("/user")
     public String showUser(Model model, Principal principal) {
-        String email = principal.getName();
-        User user = userService.findByEmail(email);
+        User user = userRepository.findByEmail(principal.getName());
         model.addAttribute("userEmail", user.getEmail());
         model.addAttribute("userRoles", user.getRoles());
         return "user";
     }
+
 }

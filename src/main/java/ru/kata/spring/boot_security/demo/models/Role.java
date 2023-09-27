@@ -15,12 +15,12 @@ public class Role {
     @GeneratedValue(strategy = IDENTITY)
     @Id
     @Column(name = "id")
-    private Long id;
+    private Integer id;
 
     @Column(name = "name")
     private String name;
 
-    public Role(Long id, String name) {
+    public Role(Integer id, String name) {
         this.id = id;
         this.name = name;
     }
@@ -33,11 +33,11 @@ public class Role {
     public Role() {
     }
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 

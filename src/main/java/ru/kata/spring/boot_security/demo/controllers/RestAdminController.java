@@ -12,8 +12,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
-import ru.kata.spring.boot_security.demo.configs.service.UserService;
-import ru.kata.spring.boot_security.demo.dao.UserDaoImpl;
+import ru.kata.spring.boot_security.demo.configs.service.SecurityUserService;
+import ru.kata.spring.boot_security.demo.configs.service.UserServiceImpl;
 import ru.kata.spring.boot_security.demo.models.User;
 
 import java.util.List;
@@ -23,23 +23,23 @@ import java.util.List;
 @RequestMapping("/api/users")
 public class RestAdminController {
 
-    private final UserDaoImpl userDao;
-    private final UserService userService;
+    private final UserServiceImpl userService;
+    private final SecurityUserService securityUserService;
 
     @Autowired
-    public RestAdminController(UserDaoImpl userDao, UserService userService) {
-        this.userDao = userDao;
+    public RestAdminController(UserServiceImpl userService, SecurityUserService securityUserService) {
         this.userService = userService;
+        this.securityUserService = securityUserService;
     }
 
     @GetMapping
     public ResponseEntity<List<User>> getAllUsers() {
-        return ResponseEntity.ok(userDao.getAllUsers());
+        return ResponseEntity.ok(userService.getAllUsers());
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/{userId}")
     public ResponseEntity<User> getUserById(@PathVariable Integer userId) {
-        User user = userDao.getUserById(userId);
+        User user = userService.getUserById(userId);
         if (user != null) {
             return ResponseEntity.ok(user);
         } else {
@@ -49,30 +49,31 @@ public class RestAdminController {
 
     @PostMapping
     public ResponseEntity<User> createUser(@RequestBody User user) {
-        userDao.addUser(user);
+        userService.addUser(user);
         return ResponseEntity.ok(user);
     }
 
-    @PutMapping("{id}")
+    @PutMapping("/{userId}")
     public ResponseEntity<User> updateUsers(@PathVariable Integer userId, @RequestBody User userToUpdate) {
-        userDao.updateUser(userId, userToUpdate);
+        userService.updateUser(userId, userToUpdate);
 
         return ResponseEntity.ok(userToUpdate);
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/{userId}")
     public ResponseEntity<Void> deleteUser(@PathVariable Integer userId) {
-        userDao.removeUser(userId);
+        userService.removeUser(userId);
         return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/about-user")
     public ResponseEntity<User> getCurrentUser() {
-        User currentUser = userService.getCurrentUser();
+        User currentUser = securityUserService.getCurrentUser();
         if (currentUser != null) {
             return ResponseEntity.ok(currentUser);
         } else {
             return ResponseEntity.notFound().build();
         }
     }
+
 }

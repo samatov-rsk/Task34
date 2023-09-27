@@ -1,7 +1,7 @@
-package ru.kata.spring.boot_security.demo.dao;
+package ru.kata.spring.boot_security.demo.configs.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.security.acls.model.NotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.kata.spring.boot_security.demo.models.Role;
@@ -13,14 +13,14 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-public class UserDaoImpl implements UserDao {
+public class UserServiceImpl implements UserService {
 
-    private final UserRepository userRepository;
     private final RoleRepository roleRepository;
+    private final UserRepository userRepository;
 
     @Autowired
-    public UserDaoImpl(UserRepository repository, RoleRepository roleRepository) {
-        this.userRepository = repository;
+    public UserServiceImpl(UserRepository userRepository, RoleRepository roleRepository) {
+        this.userRepository = userRepository;
         this.roleRepository = roleRepository;
     }
 
@@ -33,7 +33,7 @@ public class UserDaoImpl implements UserDao {
     @Transactional(readOnly = true)
     @Override
     public User getUserById(Integer userId) {
-        return userRepository.findById(userId).orElseThrow();
+        return userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User not found by %s" + userId));
     }
 
     @Transactional
