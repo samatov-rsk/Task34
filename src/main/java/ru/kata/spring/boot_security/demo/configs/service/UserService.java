@@ -15,5 +15,4 @@ public interface UserService {
     void removeUser(Integer userId);
 
     void updateUser(Integer userId, User user);
-
 }

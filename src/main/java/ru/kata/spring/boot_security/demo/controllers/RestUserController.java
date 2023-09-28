@@ -22,5 +22,4 @@ public class RestUserController {
         User user = userRepository.findByEmail(principal.getName());
         return ResponseEntity.ok(user);
     }
-
 }

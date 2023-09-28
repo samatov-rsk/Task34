@@ -24,5 +24,4 @@ public class UserController {
         model.addAttribute("userRoles", user.getRoles());
         return "user";
     }
-
 }

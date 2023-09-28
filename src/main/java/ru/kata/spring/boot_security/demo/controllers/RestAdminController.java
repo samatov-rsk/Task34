@@ -75,5 +75,4 @@ public class RestAdminController {
             return ResponseEntity.notFound().build();
         }
     }
-
 }

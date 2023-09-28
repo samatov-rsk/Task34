@@ -45,5 +45,4 @@ public class SecurityUserService implements UserDetailsService {
         UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return userRepository.findByEmail(userDetails.getUsername());
     }
-
 }

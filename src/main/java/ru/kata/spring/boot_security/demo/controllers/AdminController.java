@@ -28,5 +28,4 @@ public class AdminController {
         model.addAttribute("userRoles", user.getRoles());
         return "admin";
     }
-
 }
