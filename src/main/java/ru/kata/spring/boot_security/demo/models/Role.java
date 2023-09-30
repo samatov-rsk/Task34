@@ -25,12 +25,8 @@ public class Role {
         this.name = name;
     }
 
-    @Override
-    public String toString() {
-        return name;
-    }
-
     public Role() {
+
     }
 
     public Integer getId() {
@@ -47,5 +43,10 @@ public class Role {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    @Override
+    public String toString() {
+        return name;
     }
 }

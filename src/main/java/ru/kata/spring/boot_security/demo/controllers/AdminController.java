@@ -21,7 +21,7 @@ public class AdminController {
         this.userRepository = userRepository;
     }
 
-    @GetMapping()
+    @GetMapping
     public String getUserPage(Model model, Principal principal) {
         User user = userRepository.findByEmail(principal.getName());
         model.addAttribute("userEmail", user.getEmail());

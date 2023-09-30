@@ -1,6 +1,7 @@
 package ru.kata.spring.boot_security.demo.configs.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.acls.model.NotFoundException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -31,18 +32,23 @@ public class SecurityUserService implements UserDetailsService {
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         User user = userRepository.findByEmail(email);
         if (user == null) {
-            throw new UsernameNotFoundException("User not found");
+            throw new UsernameNotFoundException("User not found" + email);
         }
         return new org.springframework.security.core.userdetails.User(user.getEmail(), user.getPassword(),
                 mapRolesToAuthorities(user.getRoles()));
     }
 
     private Collection<? extends GrantedAuthority> mapRolesToAuthorities(Collection<Role> roles) {
-        return roles.stream().map(role -> new SimpleGrantedAuthority(role.getName())).collect(Collectors.toList());
+        return roles.stream().
+                map(role -> new SimpleGrantedAuthority(role.getName())).
+                collect(Collectors.toList());
     }
 
     public User getCurrentUser() {
         UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        return userRepository.findByEmail(userDetails.getUsername());
+        if (userDetails == null) {
+            return userRepository.findByEmail(userDetails.getUsername());
+        } else
+            throw new NotFoundException("User not found");
     }
 }

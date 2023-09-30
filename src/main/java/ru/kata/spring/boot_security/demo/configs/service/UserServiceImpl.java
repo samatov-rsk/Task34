@@ -40,7 +40,9 @@ public class UserServiceImpl implements UserService {
     @Override
     public void addUser(User user) {
         List<Role> userRoles = roleRepository.findAllByNameIn(user.getRoles()
-                .stream().map(Role::getName).collect(Collectors.toList()));
+                .stream().
+                map(Role::getName).
+                collect(Collectors.toList()));
         user.setRoles(userRoles);
         userRepository.save(user);
     }
@@ -53,15 +55,15 @@ public class UserServiceImpl implements UserService {
 
     @Transactional
     @Override
-    public void updateUser(Integer userId, User updatedUser) {
+    public void userToUpdate(Integer userId, User user) {
         User existingUser = getUserById(userId);
 
-        existingUser.setName(updatedUser.getName());
-        existingUser.setSurname(updatedUser.getSurname());
-        existingUser.setAge(updatedUser.getAge());
-        existingUser.setEmail(updatedUser.getEmail());
+        existingUser.setName(user.getName());
+        existingUser.setSurname(user.getSurname());
+        existingUser.setAge(user.getAge());
+        existingUser.setEmail(user.getEmail());
         List<Role> existingRoles = roleRepository.findAllByNameIn(
-                updatedUser.getRoles().stream()
+                user.getRoles().stream()
                         .map(Role::getName)
                         .collect(Collectors.toList())
         );
