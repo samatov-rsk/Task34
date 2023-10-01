@@ -12,8 +12,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
-import ru.kata.spring.boot_security.demo.configs.service.SecurityUserService;
-import ru.kata.spring.boot_security.demo.configs.service.UserServiceImpl;
+import ru.kata.spring.boot_security.demo.service.SecurityUserService;
+import ru.kata.spring.boot_security.demo.service.UserServiceImpl;
 import ru.kata.spring.boot_security.demo.models.User;
 
 import java.util.List;
@@ -45,15 +45,14 @@ public class RestAdminController {
 
     @PostMapping
     public ResponseEntity<User> createUser(@RequestBody User user) {
-        userService.addUser(user);
-        return ResponseEntity.ok(user);
+        User createdUser = userService.addUser(user);
+        return ResponseEntity.ok(createdUser);
     }
 
     @PutMapping("/{userId}")
-    public ResponseEntity<User> userToUpdate(@PathVariable Integer userId, @RequestBody User user) {
-        userService.userToUpdate(userId, user);
-
-        return ResponseEntity.ok(user);
+    public ResponseEntity<User> updateUserById(@PathVariable Integer userId, @RequestBody User user) {
+        User updatedUser = userService.updateUserById(userId, user);
+        return ResponseEntity.ok(updatedUser);
     }
 
     @DeleteMapping("/{userId}")

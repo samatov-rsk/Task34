@@ -4,24 +4,23 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
+import ru.kata.spring.boot_security.demo.service.SecurityUserService;
 import ru.kata.spring.boot_security.demo.models.User;
-import ru.kata.spring.boot_security.demo.repositiories.UserRepository;
 
 import java.security.Principal;
 
 @RestController
 public class RestUserController {
 
-    private final UserRepository userRepository;
+    private final SecurityUserService securityUserService;
 
     @Autowired
-    public RestUserController(UserRepository userRepository) {
-        this.userRepository = userRepository;
+    public RestUserController(SecurityUserService securityUserService) {
+        this.securityUserService = securityUserService;
     }
 
     @GetMapping("/api/user")
     public ResponseEntity<User> getCurrentUser(Principal principal) {
-        User user = userRepository.findByEmail(principal.getName());
-        return ResponseEntity.ok(user);
+        return ResponseEntity.ok(securityUserService.getUser(principal.getName()));
     }
 }

@@ -1,9 +1,9 @@
-package ru.kata.spring.boot_security.demo.configs.service;
+package ru.kata.spring.boot_security.demo.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.acls.model.NotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.kata.spring.boot_security.demo.exception.UserNotFoundException;
 import ru.kata.spring.boot_security.demo.models.Role;
 import ru.kata.spring.boot_security.demo.models.User;
 import ru.kata.spring.boot_security.demo.repositiories.RoleRepository;
@@ -33,18 +33,18 @@ public class UserServiceImpl implements UserService {
     @Transactional(readOnly = true)
     @Override
     public User getUserById(Integer userId) {
-        return userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User not found by %s" + userId));
+        return userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("User not found by %s" + userId));
     }
 
     @Transactional
     @Override
-    public void addUser(User user) {
+    public User addUser(User user) {
         List<Role> userRoles = roleRepository.findAllByNameIn(user.getRoles()
-                .stream().
-                map(Role::getName).
-                collect(Collectors.toList()));
+                .stream()
+                .map(Role::getName)
+                .collect(Collectors.toList()));
         user.setRoles(userRoles);
-        userRepository.save(user);
+        return userRepository.save(user);
     }
 
     @Transactional
@@ -55,19 +55,19 @@ public class UserServiceImpl implements UserService {
 
     @Transactional
     @Override
-    public void userToUpdate(Integer userId, User user) {
-        User existingUser = getUserById(userId);
+    public User updateUserById(Integer userId, User user) {
+        User userToUpdate = getUserById(userId);
 
-        existingUser.setName(user.getName());
-        existingUser.setSurname(user.getSurname());
-        existingUser.setAge(user.getAge());
-        existingUser.setEmail(user.getEmail());
+        userToUpdate.setName(user.getName());
+        userToUpdate.setSurname(user.getSurname());
+        userToUpdate.setAge(user.getAge());
+        userToUpdate.setEmail(user.getEmail());
         List<Role> existingRoles = roleRepository.findAllByNameIn(
                 user.getRoles().stream()
                         .map(Role::getName)
                         .collect(Collectors.toList())
         );
-        existingUser.setRoles(existingRoles);
-        userRepository.save(existingUser);
+        userToUpdate.setRoles(existingRoles);
+        return userRepository.save(userToUpdate);
     }
 }
