@@ -56,6 +56,11 @@ public class UserServiceImpl implements UserService {
     @Transactional
     @Override
     public User updateUserById(Integer userId, User user) {
+        User userToUpdate = getUser(userId, user);
+        return userRepository.save(userToUpdate);
+    }
+
+    private User getUser(Integer userId, User user) {
         User userToUpdate = getUserById(userId);
 
         userToUpdate.setName(user.getName());
@@ -68,6 +73,6 @@ public class UserServiceImpl implements UserService {
                         .collect(Collectors.toList())
         );
         userToUpdate.setRoles(existingRoles);
-        return userRepository.save(userToUpdate);
+        return userToUpdate;
     }
 }
