@@ -39,20 +39,17 @@ public class RestAdminController {
 
     @GetMapping("/{userId}")
     public ResponseEntity<User> getUserById(@PathVariable Integer userId) {
-        User user = userService.getUserById(userId);
-        return ResponseEntity.ok(user);
+        return ResponseEntity.ok(userService.getUserById(userId));
     }
 
     @PostMapping
     public ResponseEntity<User> createUser(@RequestBody User user) {
-        User createdUser = userService.addUser(user);
-        return ResponseEntity.ok(createdUser);
+        return ResponseEntity.ok(userService.addUser(user));
     }
 
     @PutMapping("/{userId}")
     public ResponseEntity<User> updateUserById(@PathVariable Integer userId, @RequestBody User user) {
-        User updatedUser = userService.updateUserById(userId, user);
-        return ResponseEntity.ok(updatedUser);
+        return ResponseEntity.ok(userService.updateUserById(userId, user));
     }
 
     @DeleteMapping("/{userId}")
@@ -63,7 +60,6 @@ public class RestAdminController {
 
     @GetMapping("/about-user")
     public ResponseEntity<User> getCurrentUser() {
-        User currentUser = securityUserService.getCurrentUser();
-        return ResponseEntity.ok(currentUser);
+        return ResponseEntity.ok(securityUserService.getCurrentUser());
     }
 }
