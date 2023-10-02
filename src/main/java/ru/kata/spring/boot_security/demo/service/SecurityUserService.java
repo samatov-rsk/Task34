@@ -29,14 +29,14 @@ public class SecurityUserService implements UserDetailsService {
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         User user = getUser(email);
         return new org.springframework.security.core.userdetails.User(user.getEmail(), user.getPassword(),
                 mapRolesToAuthorities(user.getRoles()));
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public User getUser(String email) {
         User user = userRepository.findByEmail(email);
         if (user == null) {
@@ -51,7 +51,7 @@ public class SecurityUserService implements UserDetailsService {
                 .collect(Collectors.toList());
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public User getCurrentUser() {
         UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (userDetails != null) {
