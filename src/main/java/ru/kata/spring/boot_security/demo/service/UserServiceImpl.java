@@ -6,8 +6,8 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.kata.spring.boot_security.demo.exception.UserNotFoundException;
 import ru.kata.spring.boot_security.demo.models.Role;
 import ru.kata.spring.boot_security.demo.models.User;
-import ru.kata.spring.boot_security.demo.repositiories.RoleRepository;
-import ru.kata.spring.boot_security.demo.repositiories.UserRepository;
+import ru.kata.spring.boot_security.demo.repositiory.RoleRepository;
+import ru.kata.spring.boot_security.demo.repositiory.UserRepository;
 
 import java.util.List;
 import java.util.stream.Collectors;
