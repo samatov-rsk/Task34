@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns="http://www.w3.org/1999/html">
+<head>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz"
+            crossorigin="anonymous"></script>
+    <meta charset="UTF-8">
+    <title>User Page</title>
+</head>
+<body>
+<style>
+    body {
+        background-color: rgba(237,236,239,0.95);
+    }
+</style>
+<nav class="navbar navbar-dark bg-dark">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <a href="#" class="navbar-brand d-flex">
+                <strong><p th:text="${userEmail}">Email пользователя</p></strong>
+                <p> &nbspwith roles:&nbsp</p>
+                <p th:text="${userRoles}">Роль пользователя</p>
+            </a>
+        </div>
+        <form action="/logout" target="_blank">
+            <button type="submit" class="btn btn-dark">Logout</button>
+        </form>
+    </div>
+</nav>
+<div class="container-fluid">
+    <div class="mt-3">
+        <div class="d-flex">
+            <div class="col-xs-6 col-sm-2 col-sm-pull-9 sidebar-offcanvas" id="sidebar">
+                <div class="list-group">
+                    <a href="#" class="list-group-item active">User</a>
+                </div>
+            </div>
+            <div class="container col-sm-9">
+                <h1>User information-page</h1>
+
+                <div class="card">
+                    <div class="card-header">
+                        <strong>About user</strong>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-striped">
+                            <thead>
+                            <tr>
+                                <th scope="col">ID</th>
+                                <th scope="col">First Name</th>
+                                <th scope="col">Last Name</th>
+                                <th scope="col">Age</th>
+                                <th scope="col">Email</th>
+                                <th scope="col">Role</th>
+                            </tr>
+                            </thead>
+                            <tbody id="user-table-body-user">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    function loadUserData() {
+        fetch('/api/user')
+            .then(response => response.json())
+            .then(user => {
+                const tableBody = document.getElementById('user-table-body-user');
+                tableBody.innerHTML = '';
+
+                const rolesArray = user.roles.map(role => role.name);
+                const rolesString = rolesArray.join(', ');
+
+                const userRow = document.createElement('tr');
+
+                userRow.innerHTML = `
+                <td>${user.id}</td>
+                <td>${user.name}</td>
+                <td>${user.surname}</td>
+                <td>${user.age}</td>
+                <td>${user.email}</td>
+                <td>${rolesString}</td>
+            `;
+                tableBody.appendChild(userRow);
+            });
+    }
+
+    loadUserData();
+
+</script>
+</body>
+</html>
