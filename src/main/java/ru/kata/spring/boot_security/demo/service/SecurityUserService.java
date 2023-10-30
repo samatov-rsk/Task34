@@ -42,7 +42,7 @@ public class SecurityUserService implements UserDetailsService {
     public User getUser(String email) {
         User user = userRepository.findByEmail(email);
         if (user == null) {
-            throw new UserNotFoundException("User not found"+email);
+            throw new UserNotFoundException("User not found "+email);
         }
         return user;
     }

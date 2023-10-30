@@ -12,6 +12,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import ru.kata.spring.boot_security.demo.exception.UserNotFoundException;
 import ru.kata.spring.boot_security.demo.models.Role;
 import ru.kata.spring.boot_security.demo.models.User;
@@ -22,6 +23,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
@@ -38,17 +40,45 @@ class SecurityUserServiceTest {
 
 
     @Test
-    void loadUserByUsername() {
+    @DisplayName("when load user by Email then success")
+    void testLoadUserByUsername() {
+        var roles = List.of(new Role(1, "USER"), new Role(2, "ADMIN"));
+        var user = new User(
+                1, "milatik", "samatop", 28, "halfmsk@gmail.com", "12345", roles);
+        org.springframework.security.core.userdetails.User userDetails =
+                new org.springframework.security.core.userdetails.
+                        User(user.getEmail(), user.getPassword(), mapRolesToAuthorities(user.getRoles()));
+
+        when(userRepository.findByEmail(user.getEmail())).thenReturn(user);
+
+        UserDetails expected = securityUserService.loadUserByUsername(user.getEmail());
+
+        assertNotNull(expected);
+        assertEquals(userDetails, expected);
+
+        verify(userRepository).findByEmail(any());
+    }
+
+    @Test
+    @DisplayName("when load user by Email Not found then success")
+    void testLoadUserByUsernameWhenUserNotFound() {
+        var roles = List.of(new Role(1, "USER"), new Role(2, "ADMIN"));
+        var user = new User(
+                1, "milatik", "samatop", 28, "halfmsk@gmail.com", "12345", roles);
+
+        when(userRepository.findByEmail(user.getEmail())).thenReturn(null);
+
+        assertThrows(UserNotFoundException.class,()-> securityUserService.loadUserByUsername(user.getEmail()));
     }
 
     @Test
     @DisplayName("when get user then success")
     void testGetUser() {
-        var roles = List.of(new Role(1,"USER"),new Role(2,"ADMIN"));
-        var user = new User(1,"milatik","samatop",28,"halfmsk@gmail.com","12345",roles);
-        when(userRepository.findByEmail(any())).thenReturn(user);
+        var roles = List.of(new Role(1, "USER"), new Role(2, "ADMIN"));
+        var user = new User(1, "milatik", "samatop", 28, "halfmsk@gmail.com", "12345", roles);
+        when(userRepository.findByEmail(user.getEmail())).thenReturn(user);
 
-        assertEquals(user,securityUserService.getUser(user.getEmail()));
+        assertEquals(user, securityUserService.getUser(user.getEmail()));
 
         verify(userRepository).findByEmail(any());
     }
@@ -58,15 +88,15 @@ class SecurityUserServiceTest {
     void testGetUserNotFound() {
         var user = new User();
         when(userRepository.findByEmail(user.getEmail())).thenReturn(null);
-        assertThrows(UserNotFoundException.class,()->securityUserService.getUser(user.getEmail()));
+        assertThrows(UserNotFoundException.class, () -> securityUserService.getUser(user.getEmail()));
         verify(userRepository).findByEmail(user.getEmail());
     }
 
     @Test
     @DisplayName("when get current user then success")
     void testGetCurrentUser() {
-        var roles = List.of(new Role(1,"USER"),new Role(2,"ADMIN"));
-        var user= new User(1,"milatik","samatop",28,"halfmsk@gmail.com","12345",roles);
+        var roles = List.of(new Role(1, "USER"), new Role(2, "ADMIN"));
+        var user = new User(1, "milatik", "samatop", 28, "halfmsk@gmail.com", "12345", roles);
         org.springframework.security.core.userdetails.User userDetails =
                 new org.springframework.security.core.userdetails.User(user.getEmail(), user.getPassword(), mapRolesToAuthorities(user.getRoles()));
 
@@ -81,7 +111,7 @@ class SecurityUserServiceTest {
 
         User currentUser = securityUserService.getCurrentUser();
 
-        assertEquals(user,currentUser);
+        assertEquals(user, currentUser);
 
         verify(userRepository).findByEmail(any());
     }
@@ -97,7 +127,7 @@ class SecurityUserServiceTest {
         when(securityContext.getAuthentication()).thenReturn(authentication);
         when(authentication.getPrincipal()).thenReturn(null);
 
-        assertThrows(UserNotFoundException.class,()->securityUserService.getCurrentUser());
+        assertThrows(UserNotFoundException.class, () -> securityUserService.getCurrentUser());
 
     }
 
