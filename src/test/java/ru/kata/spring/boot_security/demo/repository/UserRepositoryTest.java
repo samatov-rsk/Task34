@@ -1,6 +1,5 @@
 package ru.kata.spring.boot_security.demo.repository;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import ru.kata.spring.boot_security.demo.BaseIT;
@@ -50,7 +49,7 @@ public class UserRepositoryTest extends BaseIT {
 
         userRepository.save(user);
 
-        Assertions.assertEquals(Optional.of(user),userRepository.findById(1));
+        assertEquals(Optional.of(user),userRepository.findById(1));
     }
 
     @Test
@@ -58,13 +57,11 @@ public class UserRepositoryTest extends BaseIT {
             public void testDeleteUser() {
         var roles = List.of(new Role(1, "ADMIN"));
         var user = new User(1, "a", "aa", 25, "gmail", "aaaa", roles);
-        var user2 = new User(2, "a", "aa", 25, "gmail", "aaaa", roles);
 
-        var users = List.of(user,user2);
-        userRepository.saveAll(users);
+        userRepository.save(user);
 
         userRepository.delete(user);
 
-        Assertions.assertEquals(1,users.size());
+        assertEquals(Optional.empty(),userRepository.findById(user.getId()));
     }
 }
