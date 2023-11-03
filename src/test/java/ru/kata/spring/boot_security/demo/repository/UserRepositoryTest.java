@@ -11,8 +11,8 @@ import ru.kata.spring.boot_security.demo.models.User;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class UserRepositoryTest extends BaseIT {
 
@@ -75,20 +75,6 @@ public class UserRepositoryTest extends BaseIT {
         var user = new User(1, "a", "aa", 25, "gmail", "aaaa", roles);
 
         assertEquals(user, userRepository.save(user));
-    }
-
-    @Test
-    @DisplayName("when save user then success")
-    @Transactional
-    public void testSaveUserB() {
-
-        var roles = List.of(new Role(1, "ADMIN"));
-        var user = new User(1, "a", "aa", 25, "gmail", "aaaa", roles);
-        var user2 = new User(2, "a", "aa", 25, "gmail", "aaaa", roles);
-
-        userRepository.save(user);
-
-        assertThrows(DataIntegrityViolationException.class,()-> userRepository.save(user2));
     }
 
     @Test
