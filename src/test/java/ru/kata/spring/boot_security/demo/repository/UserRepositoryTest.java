@@ -2,6 +2,8 @@ package ru.kata.spring.boot_security.demo.repository;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.transaction.annotation.Transactional;
 import ru.kata.spring.boot_security.demo.BaseIT;
 import ru.kata.spring.boot_security.demo.models.Role;
 import ru.kata.spring.boot_security.demo.models.User;
@@ -9,12 +11,14 @@ import ru.kata.spring.boot_security.demo.models.User;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 
 public class UserRepositoryTest extends BaseIT {
 
     @Test
     @DisplayName("when find All user then success")
+    @Transactional(readOnly = true)
     public void testFindAllUser() {
         var roles = List.of(new Role(1, "ADMIN"));
         var user = new User(1, "a", "aa", 25, "gmail", "aaaa", roles);
@@ -32,7 +36,39 @@ public class UserRepositoryTest extends BaseIT {
     }
 
     @Test
+    @DisplayName("when find All user not found then success")
+    @Transactional(readOnly = true)
+    public void testFindAllUserNotFound() {
+        userRepository.deleteAll();
+        var users = userRepository.findAll();
+        assertEquals(0, users.size());
+    }
+
+    @Test
+    @DisplayName("when find by Id user then success")
+    @Transactional(readOnly = true)
+    public void testFindById() {
+        var roles = List.of(new Role(1, "ADMIN"));
+        var user = new User(1, "a", "aa", 25, "gmail", "aaaa", roles);
+
+        userRepository.save(user);
+
+        assertEquals(Optional.of(user), userRepository.findById(1));
+    }
+
+    @Test
+    @DisplayName("when find by Id user not found then success")
+    @Transactional(readOnly = true)
+    public void testFindByIdNotFound() {
+
+        userRepository.deleteAll();
+
+        assertEquals(Optional.empty(), userRepository.findById(5));
+    }
+
+    @Test
     @DisplayName("when save user then success")
+    @Transactional
     public void testSaveUser() {
 
         var roles = List.of(new Role(1, "ADMIN"));
@@ -42,23 +78,40 @@ public class UserRepositoryTest extends BaseIT {
     }
 
     @Test
-    @DisplayName("when find by Id user then success")
-    public void testFindById(){
+    @DisplayName("when save user then success")
+    @Transactional
+    public void testSaveUserB() {
+
         var roles = List.of(new Role(1, "ADMIN"));
         var user = new User(1, "a", "aa", 25, "gmail", "aaaa", roles);
+        var user2 = new User(2, "a", "aa", 25, "gmail", "aaaa", roles);
 
         userRepository.save(user);
 
-        assertEquals(Optional.of(user),userRepository.findById(1));
+        assertThrows(DataIntegrityViolationException.class,()-> userRepository.save(user2));
     }
 
     @Test
     @DisplayName("when delete user then success ")
-            public void testDeleteUser() {
+    @Transactional
+    public void testDeleteUser() {
         var roles = List.of(new Role(1, "ADMIN"));
         var user = new User(1, "a", "aa", 25, "gmail", "aaaa", roles);
 
         userRepository.save(user);
+
+        userRepository.delete(user);
+
+        assertEquals(Optional.empty(), userRepository.findById(user.getId()));
+    }
+
+    @Test
+    @DisplayName("when delete user then success ")
+    @Transactional
+    public void testDeleteUserNotFound() {
+        var roles = List.of(new Role(1, "ADMIN"));
+        var user = new User(1, "a", "aa", 25, "gmail", "aaaa", roles);
+
 
         userRepository.delete(user);
 
