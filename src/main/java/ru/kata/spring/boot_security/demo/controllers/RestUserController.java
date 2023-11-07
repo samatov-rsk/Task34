@@ -20,7 +20,7 @@ public class RestUserController {
     }
 
     @GetMapping("/api/user")
-    public ResponseEntity<User> getCurrentUser(Principal principal) {
-        return ResponseEntity.ok(securityUserService.getUser(principal.getName()));
+    public User getCurrentUser() {
+        return securityUserService.getCurrentUser();
     }
 }

@@ -1,0 +1,13 @@
+{
+  "id": 1,
+  "name": "user",
+  "surname": "userov",
+  "email": "user@mail.ru",
+  "age": 20,
+  "roles": [
+    {
+      "id": 1,
+      "name": "ROLE_USER"
+    }
+  ]
+}
