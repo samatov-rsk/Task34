@@ -22,7 +22,7 @@ public class RestUserControllerTest extends BaseWeb {
         var roles = List.of(new Role(1, "ROLE_USER"));
         var user = new User(1, "user", "userov", 20, "user@mail.ru", "test", roles);
 
-        when(securityUserService.getCurrentUser()).thenReturn(user);
+        when(securityUserService.getUser(user.getEmail())).thenReturn(user);
 
         String json = objectMapper.writeValueAsString(user);
 
