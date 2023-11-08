@@ -1,112 +1,123 @@
 package ru.kata.spring.boot_security.demo.controllers;
 
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.security.test.context.support.WithMockUser;
 import ru.kata.spring.boot_security.demo.models.Role;
 import ru.kata.spring.boot_security.demo.models.User;
-import ru.kata.spring.boot_security.demo.repositiories.UserRepository;
 
-import java.util.Collections;
 import java.util.List;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-@WebMvcTest({RestAdminController.class})
-public class RestAdminControllerTest {
 
-    @Autowired
-    UserRepository userRepository;
-
-    @Autowired
-    MockMvc mockMvc;
-
-    @BeforeEach
-    public void setUser() {
-        var roles = List.of(new Role(1, "ROLE_ADMIN"));
-        var user = new User(1, "Milatik", "Samatov", 30, "admin@mail.ru", "100", roles);
-        userRepository.save(user);
-        UserDetails userDetails = new org.springframework.security.core.userdetails.User(user.getEmail(),
-                user.getPassword(), Collections.singleton(new SimpleGrantedAuthority("ROLE_ADMIN")));
-
-        Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, user.getPassword(),
-                Collections.singleton(new SimpleGrantedAuthority("ROLE_ADMIN")));
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-    }
+public class RestAdminControllerTest extends BaseWeb {
 
     @Test
     @DisplayName("when request /api/users for get all users then return user json")
+    @WithMockUser(username = "admin@mail.ru", password = "test", authorities = "ROLE_ADMIN")
     public void testGetAllUser() throws Exception {
+
+        var roles = List.of(new Role(1, "ROLE_USER"));
+        var user = new User(1, "user", "userov", 20, "user@mail.ru", "test", roles);
+        var user2 = new User(2, "user2", "adminov", 20, "admin@mail.ru", "test", roles);
+
+        var users = List.of(user, user2);
+
+        when(userService.getAllUsers()).thenReturn(users);
+
+        String json = objectMapper.writeValueAsString(users);
 
         mockMvc.perform(get("/api/users").contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(content().json("[{\"id\":1,\"surname\":\"Samatov\",\"email\":\"admin@mail.ru\",\"age\":30,\"password\":\"100\",\"roles\":[{\"id\":1,\"name\":\"ROLE_ADMIN\"}],\"name\":\"Milatik\"}]"));
+                .andExpect(content().json(json, false));
     }
 
     @Test
     @DisplayName("when request /api/user/1 for get user then return user json")
+    @WithMockUser(username = "admin@mail.ru", password = "test", authorities = "ROLE_ADMIN")
     public void testGetUser() throws Exception {
+        var roles = List.of(new Role(1, "ROLE_USER"));
+        var user = new User(1, "user", "userov", 20, "user@mail.ru", "test", roles);
+
+        when(userService.getUserById(user.getId())).thenReturn(user);
+        String json = objectMapper.writeValueAsString(user);
 
         mockMvc.perform(get("/api/users/1").contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(content().json("{\"id\":1,\"surname\":\"Samatov\",\"email\":\"admin@mail.ru\",\"age\":30,\"password\":\"100\",\"roles\":[{\"id\":1,\"name\":\"ROLE_ADMIN\"}],\"name\":\"Milatik\"}"));
+                .andExpect(content().json(json, false));
     }
 
     @Test
     @DisplayName("when request /api/users for add user then return user json")
+    @WithMockUser(username = "admin@mail.ru", password = "test", authorities = "ROLE_ADMIN")
     public void testAddUser() throws Exception {
+        var roles = List.of(new Role(1, "ROLE_USER"));
+        var user = new User(1, "user", "userov", 20, "user@mail.ru", "test", roles);
+
+        when(userService.addUser(user)).thenReturn(any());
+
+        String json = objectMapper.writeValueAsString(user);
 
         mockMvc.perform(post("/api/users").contentType(MediaType.APPLICATION_JSON).content(
-                        "{\"id\":2,\"surname\":\"Samatova\",\"email\":\"admin1@mail.ru\",\"age\":30,\"password\":\"100\",\"roles\":[{\"id\":1,\"name\":\"ROLE_ADMIN\"}],\"name\":\"Zamira\"}"
-                ))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(content().json("{\"id\":2,\"surname\":\"Samatova\",\"email\":\"admin1@mail.ru\",\"age\":30,\"password\":\"100\",\"roles\":[{\"id\":1,\"name\":\"ROLE_ADMIN\"}],\"name\":\"Zamira\"}"));
+                        json))
+                .andExpect(status().isOk());
     }
 
     @Test
     @DisplayName("when request /api/users/1 for update user then return user json")
+    @WithMockUser(username = "admin@mail.ru", password = "test", authorities = "ROLE_ADMIN")
     public void testUpdateUserById() throws Exception {
 
-        mockMvc.perform(put("/api/users/1").contentType(MediaType.APPLICATION_JSON).content(
-                        "{\"id\":1,\"surname\":\"Samatov\",\"email\":\"admin1@mail.ru\",\"age\":30,\"password\":\"100\",\"roles\":[{\"id\":1,\"name\":\"ROLE_ADMIN\"}],\"name\":\"Ruslan\"}"
-                ))
+        var roles = List.of(new Role(1, "ROLE_USER"));
+        var user = new User(1, "admin", "admin", 20, "admin@mail.ru", "test", roles);
+
+        when(userService.updateUserById(1,user)).thenReturn(user);
+
+        String userJson = objectMapper.writeValueAsString(user);
+
+        mockMvc.perform(put("/api/users/1").contentType(MediaType.APPLICATION_JSON).content(userJson))
                 .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(content().json("{\"id\":1,\"surname\":\"Samatov\",\"email\":\"admin1@mail.ru\",\"age\":30,\"password\":\"100\",\"roles\":[{\"id\":1,\"name\":\"ROLE_ADMIN\"}],\"name\":\"Ruslan\"}"));
+                .andExpect(content().json(userJson));
     }
 
     @Test
     @DisplayName("when request /api/users/1 for delete user then return user json")
+    @WithMockUser(username = "admin@mail.ru", password = "test", authorities = "ROLE_ADMIN")
     public void testDeleteUserById() throws Exception {
+        var roles = List.of(new Role(1, "ROLE_USER"));
+        var user = new User(1, "user", "userov", 20, "user@mail.ru", "test", roles);
+
+        String json = objectMapper.writeValueAsString(user);
 
         mockMvc.perform(delete("/api/users/1").contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isNoContent());
+                .andExpect(status().isNoContent())
+                .andExpect(content().json(json, false));
     }
 
     @Test
     @DisplayName("when request /api/users/about-user then return user json")
+    @WithMockUser(username = "admin@mail.ru", password = "test", authorities = "ROLE_ADMIN")
     public void testShowUserPage() throws Exception {
+
+        var roles = List.of(new Role(1, "ROLE_ADMIN"));
+        var user = new User(1, "admin", "adminov", 20, "admin@mail.ru", "test", roles);
+
+        when(securityUserService.getCurrentUser()).thenReturn(user);
+
+        String json = objectMapper.writeValueAsString(user);
 
         mockMvc.perform(get("/api/users/about-user").contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.email").value("admin@mail.ru"));
-    }
-    @AfterEach
-    public void clearContext() {
-        SecurityContextHolder.clearContext();
+                .andExpect(content().json(json, false));
     }
 }

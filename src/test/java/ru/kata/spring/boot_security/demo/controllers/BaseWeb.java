@@ -8,8 +8,10 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.kata.spring.boot_security.demo.configs.SuccessUserHandler;
 import ru.kata.spring.boot_security.demo.service.SecurityUserService;
+import ru.kata.spring.boot_security.demo.service.UserServiceImpl;
 
-@WebMvcTest(controllers = {UserController.class, AdminController.class, RestUserController.class})
+@WebMvcTest(controllers = {UserController.class, AdminController.class,
+        RestUserController.class, RestAdminController.class})
 @Import(value = {SuccessUserHandler.class})
 abstract public class BaseWeb {
 
@@ -21,5 +23,10 @@ abstract public class BaseWeb {
 
     @MockBean
     protected SecurityUserService securityUserService;
+
+    @MockBean
+    protected UserServiceImpl userService;
+
+
 
 }
