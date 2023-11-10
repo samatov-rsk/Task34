@@ -1,21 +1,11 @@
 package ru.kata.spring.boot_security.demo.controllers;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.Import;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.web.servlet.MockMvc;
-import ru.kata.spring.boot_security.demo.configs.SuccessUserHandler;
-import ru.kata.spring.boot_security.demo.configs.WebSecurityConfig;
+import ru.kata.spring.boot_security.demo.exception.UserNotFoundException;
 import ru.kata.spring.boot_security.demo.models.Role;
 import ru.kata.spring.boot_security.demo.models.User;
-import ru.kata.spring.boot_security.demo.service.SecurityUserService;
 
 import java.util.List;
 
@@ -43,6 +33,16 @@ class UserControllerTest extends BaseWeb {
 
         assertEquals(user,securityUserService.getUser(user.getEmail()));
         verify(securityUserService).getUser(user.getEmail());
+    }
+
+    @Test
+    @DisplayName("when request /user then return UserNotFoundException")
+    @WithMockUser(username = "test", password = "test",authorities = "ROLE_USER")
+    public void testShowUserPageNotFound() throws Exception {
+        when(securityUserService.getUser(any())).thenThrow(new UserNotFoundException("User not found"));
+
+        mockMvc.perform(get("/user"))
+                .andExpect(status().isNotFound());
     }
 
 }

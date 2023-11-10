@@ -3,6 +3,7 @@ package ru.kata.spring.boot_security.demo.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.kata.spring.boot_security.demo.exception.EmailNotUniqueException;
 import ru.kata.spring.boot_security.demo.exception.UserNotFoundException;
 import ru.kata.spring.boot_security.demo.models.Role;
 import ru.kata.spring.boot_security.demo.models.User;
@@ -36,9 +37,16 @@ public class UserServiceImpl implements UserService {
         return userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("User not found by %s" + userId));
     }
 
+    public boolean isEmailUnique(String email) {
+        return userRepository.findByEmail(email)==null;
+    }
+
     @Transactional
     @Override
     public User addUser(User user) {
+        if (!isEmailUnique(user.getEmail())) {
+            throw new EmailNotUniqueException("Email is not unique");
+        }
         List<Role> userRoles = roleRepository.findAllByNameIn(user.getRoles()
                 .stream()
                 .map(Role::getName)

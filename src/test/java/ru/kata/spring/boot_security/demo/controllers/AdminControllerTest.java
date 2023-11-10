@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.context.annotation.Import;
 import org.springframework.security.test.context.support.WithMockUser;
 import ru.kata.spring.boot_security.demo.configs.SuccessUserHandler;
+import ru.kata.spring.boot_security.demo.exception.UserNotFoundException;
 import ru.kata.spring.boot_security.demo.models.Role;
 import ru.kata.spring.boot_security.demo.models.User;
 
@@ -24,6 +25,7 @@ public class AdminControllerTest extends BaseWeb{
     @DisplayName("when request /admin then return user json")
     @WithMockUser(username = "test", password = "test",authorities = "ROLE_ADMIN")
     public void testShowUserPage() throws Exception {
+
         var roles = List.of(new Role(1,"ADMIN"));
         var user = new User(1,"aaa","sss",24,"aaaa","1000",roles);
 
@@ -37,4 +39,15 @@ public class AdminControllerTest extends BaseWeb{
         verify(securityUserService).getUser(user.getEmail());
     }
 
+    @Test
+    @DisplayName("when request /admin then return UserNotFoundException")
+    @WithMockUser(username = "test", password = "test",authorities = "ROLE_ADMIN")
+    public void testShowAdminPageNotFound() throws Exception {
+
+        when(securityUserService.getUser(any())).thenThrow(new UserNotFoundException("User not found"));
+
+        mockMvc.perform(get("/admin"))
+                .andExpect(status().isNotFound());
+
+    }
 }

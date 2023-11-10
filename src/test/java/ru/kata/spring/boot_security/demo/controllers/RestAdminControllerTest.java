@@ -4,6 +4,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
+import ru.kata.spring.boot_security.demo.exception.EmailNotUniqueException;
 import ru.kata.spring.boot_security.demo.exception.UserNotFoundException;
 import ru.kata.spring.boot_security.demo.models.Role;
 import ru.kata.spring.boot_security.demo.models.User;
@@ -11,8 +12,7 @@ import ru.kata.spring.boot_security.demo.models.User;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -77,13 +77,13 @@ public class RestAdminControllerTest extends BaseWeb {
     }
 
     @Test
-    @DisplayName("when request /api/users/1 for get user then return exception user not found ")
+    @DisplayName("when request /api/users/1 for get user then return UserNotFoundException")
     @WithMockUser(username = "admin@mail.ru", password = "test", authorities = "ROLE_ADMIN")
     public void testGetUserNotFound() throws Exception {
 
-        when(userService.getUserById(any())).thenReturn(null);
+        when(userService.getUserById(99)).thenThrow(new UserNotFoundException("User not found"));
 
-        mockMvc.perform(get("/api/users/99").contentType(MediaType.APPLICATION_JSON))
+        mockMvc.perform(get("/api/users/99"))
                 .andExpect(status().isNotFound());
     }
 
@@ -105,6 +105,22 @@ public class RestAdminControllerTest extends BaseWeb {
     }
 
     @Test
+    @DisplayName("when request /api/users for add user with non-unique email then return bad request")
+    @WithMockUser(username = "admin@mail.ru", password = "test", authorities = "ROLE_ADMIN")
+    public void testAddUserNonUniqueEmail() throws Exception {
+        var roles = List.of(new Role(1, "ROLE_USER"));
+        var user = new User(1, "user", "userov", 20,
+                "existing_user@mail.ru", "test", roles);
+
+        when(userService.addUser(any())).thenThrow(new EmailNotUniqueException("Email not unique"));
+
+        String json = objectMapper.writeValueAsString(user);
+
+        mockMvc.perform(post("/api/users").contentType(MediaType.APPLICATION_JSON).content(json))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
     @DisplayName("when request /api/users/1 for update user then return user json")
     @WithMockUser(username = "admin@mail.ru", password = "test", authorities = "ROLE_ADMIN")
     public void testUpdateUserById() throws Exception {
@@ -123,7 +139,7 @@ public class RestAdminControllerTest extends BaseWeb {
     }
 
     @Test
-    @DisplayName("when request /api/users/1 for get user then return exception user not found ")
+    @DisplayName("when request /api/users/1 for get user then return exception userNotFoundException")
     @WithMockUser(username = "admin@mail.ru", password = "test", authorities = "ROLE_ADMIN")
     public void testUpdateUserNotFound() throws Exception {
 
@@ -131,14 +147,11 @@ public class RestAdminControllerTest extends BaseWeb {
         var user = new User(1, "admin", "admin", 20,
                 "admin@mail.ru", "test", roles);
 
-        var user2 = new User();
+        when(userService.updateUserById(any(), any())).thenThrow(new UserNotFoundException("User not found"));
 
-        when(userService.updateUserById(any(), any())).thenReturn(null);
+        String userJson = objectMapper.writeValueAsString(user);
 
-        String userJson = objectMapper.writeValueAsString(user2);
-
-
-        mockMvc.perform(put("/api/users/99")
+        mockMvc.perform(put("/api/users/1")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(userJson))
                 .andExpect(status().isNotFound());
@@ -162,20 +175,20 @@ public class RestAdminControllerTest extends BaseWeb {
     }
 
     @Test
-    @DisplayName("when request /api/users/1 for delete user then return user not found")
+    @DisplayName("when request /api/users/1 for delete user then return userNotFoundException")
     @WithMockUser(username = "admin@mail.ru", password = "test", authorities = "ROLE_ADMIN")
     public void testDeleteUserByIdNotFound() throws Exception {
 
-        doNothing().when(userService).removeUser(99);
+        doThrow(new UserNotFoundException("User not found")).when(userService).removeUser(99);
 
         mockMvc.perform(delete("/api/users/99").contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
     }
 
     @Test
-    @DisplayName("when request /api/users/about-user then return user json")
+    @DisplayName("when request /api/users/about-user then return admin json")
     @WithMockUser(username = "admin@mail.ru", password = "test", authorities = "ROLE_ADMIN")
-    public void testShowUserPage() throws Exception {
+    public void testShowAdminPage() throws Exception {
 
         var roles = List.of(new Role(1, "ROLE_ADMIN"));
         var user = new User(1, "admin", "adminov", 20,
@@ -189,5 +202,15 @@ public class RestAdminControllerTest extends BaseWeb {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(content().json(json, false));
+    }
+    @Test
+    @DisplayName("when request /api/users/about-user then return UserNotFoundException")
+    @WithMockUser(username = "admin@mail.ru", password = "test", authorities = "ROLE_ADMIN")
+    public void testShowAdminPageNotFound() throws Exception {
+
+        when(securityUserService.getCurrentUser()).thenThrow(new UserNotFoundException("User not found"));
+
+        mockMvc.perform(get("/api/users/about-user").contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
     }
 }

@@ -10,6 +10,8 @@ public interface UserService {
 
     User getUserById(Integer userId);
 
+    boolean isEmailUnique(String email);
+
     User addUser(User user);
 
     void removeUser(Integer userId);
