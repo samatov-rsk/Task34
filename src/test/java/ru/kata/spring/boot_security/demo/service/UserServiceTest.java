@@ -1,5 +1,6 @@
 package ru.kata.spring.boot_security.demo.service;
 
+import org.hibernate.NonUniqueResultException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -108,6 +109,17 @@ class UserServiceTest {
 
         assertNotNull(result);
         assertEquals(roles, result.getRoles());
+
+    }
+    @Test
+    @DisplayName("when add user then success")
+    void testAddUserNonUniqueEmail() {
+        var roles = List.of(new Role(1, "USER"), new Role(2, "ADMIN"));
+        var expected = new User(1, "ruslen", "samativ", 25, "samativ@mail.ru", "passsss", roles);
+
+        when(userService.isEmailUnique(any())).thenThrow(new NonUniqueResultException(1));
+
+        assertThrows(NonUniqueResultException.class,()-> userService.addUser(expected));
 
     }
 
