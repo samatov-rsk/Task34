@@ -36,9 +36,16 @@ public class UserServiceImpl implements UserService {
         return userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("User not found by %s" + userId));
     }
 
+    public boolean isEmailUnique(String email) {
+        return userRepository.findByEmail(email)==null;
+    }
+
     @Transactional
     @Override
     public User addUser(User user) {
+        if (!isEmailUnique(user.getEmail())) {
+            throw new EmailNotUniqueException("Email is not unique");
+        }
         List<Role> userRoles = roleRepository.findAllByNameIn(user.getRoles()
                 .stream()
                 .map(Role::getName)
