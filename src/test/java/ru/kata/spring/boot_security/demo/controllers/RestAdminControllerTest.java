@@ -20,7 +20,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class RestAdminControllerTest extends BaseWeb {
 
     @Test
-    @DisplayName("when request /api/users for get all users then return user json")
+    @DisplayName("when request /api/users for get all users then return users json")
     @WithMockUser(username = "admin@mail.ru", password = "test", authorities = "ROLE_ADMIN")
     public void testGetAllUser() throws Exception {
 
@@ -105,7 +105,7 @@ public class RestAdminControllerTest extends BaseWeb {
     }
 
     @Test
-    @DisplayName("when request /api/users for add user with non-unique email then return bad request")
+    @DisplayName("when request /api/users for add user with non-unique email then return NonUniqueException")
     @WithMockUser(username = "admin@mail.ru", password = "test", authorities = "ROLE_ADMIN")
     public void testAddUserNonUniqueEmail() throws Exception {
         var roles = List.of(new Role(1, "ROLE_USER"));
@@ -139,7 +139,7 @@ public class RestAdminControllerTest extends BaseWeb {
     }
 
     @Test
-    @DisplayName("when request /api/users/1 for get user then return exception userNotFoundException")
+    @DisplayName("when request /api/users/1 for get user then return exception UserNotFoundException")
     @WithMockUser(username = "admin@mail.ru", password = "test", authorities = "ROLE_ADMIN")
     public void testUpdateUserNotFound() throws Exception {
 
@@ -175,7 +175,7 @@ public class RestAdminControllerTest extends BaseWeb {
     }
 
     @Test
-    @DisplayName("when request /api/users/1 for delete user then return userNotFoundException")
+    @DisplayName("when request /api/users/1 for delete user then return UserNotFoundException")
     @WithMockUser(username = "admin@mail.ru", password = "test", authorities = "ROLE_ADMIN")
     public void testDeleteUserByIdNotFound() throws Exception {
 

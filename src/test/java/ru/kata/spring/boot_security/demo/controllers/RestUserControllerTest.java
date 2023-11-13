@@ -34,7 +34,7 @@ public class RestUserControllerTest extends BaseWeb {
     }
 
     @Test
-    @DisplayName("when request /api/user then return UserNotFound")
+    @DisplayName("when request /api/user then return UserNotFoundException")
     @WithMockUser(username = "user@mail.ru", password = "test", authorities = "ROLE_USER")
     public void testShowUserPageNotFound() throws Exception {
 
