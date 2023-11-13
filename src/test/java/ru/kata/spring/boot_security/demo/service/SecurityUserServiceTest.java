@@ -20,14 +20,14 @@ import ru.kata.spring.boot_security.demo.repositiory.UserRepository;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class SecurityUserServiceTest {
@@ -36,8 +36,7 @@ class SecurityUserServiceTest {
     private UserRepository userRepository;
 
     @InjectMocks
-    SecurityUserService securityUserService;
-
+    private SecurityUserService securityUserService;
 
     @Test
     @DisplayName("when load user by Email then success")
@@ -45,28 +44,27 @@ class SecurityUserServiceTest {
         var roles = List.of(new Role(1, "USER"), new Role(2, "ADMIN"));
         var user = new User(
                 1, "milatik", "samatop", 28, "halfmsk@gmail.com", "12345", roles);
-        org.springframework.security.core.userdetails.User userDetails =
+        var userDetails =
                 new org.springframework.security.core.userdetails.
                         User(user.getEmail(), user.getPassword(), mapRolesToAuthorities(user.getRoles()));
 
-        when(userRepository.findByEmail(user.getEmail())).thenReturn(user);
+        when(userRepository.findByEmail(user.getEmail())).thenReturn(Optional.of(user));
 
-        UserDetails expected = securityUserService.loadUserByUsername(user.getEmail());
+        UserDetails result = securityUserService.loadUserByUsername(user.getEmail());
 
-        assertNotNull(expected);
-        assertEquals(userDetails, expected);
+        assertNotNull(result);
+        assertEquals(userDetails, result);
 
         verify(userRepository).findByEmail(any());
     }
 
     @Test
-    @DisplayName("when load user by Email Not found then success")
+    @DisplayName("when load user by Email then Not found")
     void testLoadUserByUsernameWhenUserNotFound() {
         var roles = List.of(new Role(1, "USER"), new Role(2, "ADMIN"));
-        var user = new User(
-                1, "milatik", "samatop", 28, "halfmsk@gmail.com", "12345", roles);
+        var user = new User(1, "milatik", "samatop", 28, "halfmsk@gmail.com", "12345", roles);
 
-        when(userRepository.findByEmail(user.getEmail())).thenReturn(null);
+        when(userRepository.findByEmail(user.getEmail())).thenReturn(Optional.empty());
 
         assertThrows(UserNotFoundException.class,()-> securityUserService.loadUserByUsername(user.getEmail()));
     }
@@ -76,7 +74,8 @@ class SecurityUserServiceTest {
     void testGetUser() {
         var roles = List.of(new Role(1, "USER"), new Role(2, "ADMIN"));
         var user = new User(1, "milatik", "samatop", 28, "halfmsk@gmail.com", "12345", roles);
-        when(userRepository.findByEmail(user.getEmail())).thenReturn(user);
+
+        when(userRepository.findByEmail(user.getEmail())).thenReturn(Optional.of(user));
 
         assertEquals(user, securityUserService.getUser(user.getEmail()));
 
@@ -84,12 +83,14 @@ class SecurityUserServiceTest {
     }
 
     @Test
-    @DisplayName("when get user not found then success")
+    @DisplayName("when get user then not found")
     void testGetUserNotFound() {
-        var user = new User();
-        when(userRepository.findByEmail(user.getEmail())).thenReturn(null);
-        assertThrows(UserNotFoundException.class, () -> securityUserService.getUser(user.getEmail()));
-        verify(userRepository).findByEmail(user.getEmail());
+
+        when(userRepository.findByEmail("abc")).thenReturn(Optional.empty());
+
+        assertThrows(UserNotFoundException.class, () -> securityUserService.getUser("abc"));
+
+        verify(userRepository).findByEmail("abc");
     }
 
     @Test
@@ -97,8 +98,8 @@ class SecurityUserServiceTest {
     void testGetCurrentUser() {
         var roles = List.of(new Role(1, "USER"), new Role(2, "ADMIN"));
         var user = new User(1, "milatik", "samatop", 28, "halfmsk@gmail.com", "12345", roles);
-        org.springframework.security.core.userdetails.User userDetails =
-                new org.springframework.security.core.userdetails.User(user.getEmail(), user.getPassword(), mapRolesToAuthorities(user.getRoles()));
+        var securityUser = new org.springframework.security.core.userdetails
+                .User(user.getEmail(), user.getPassword(), mapRolesToAuthorities(user.getRoles()));
 
         Authentication authentication = Mockito.mock(Authentication.class);
         SecurityContext securityContext = Mockito.mock(SecurityContext.class);
@@ -106,18 +107,18 @@ class SecurityUserServiceTest {
         SecurityContextHolder.setContext(securityContext);
 
         when(securityContext.getAuthentication()).thenReturn(authentication);
-        when(authentication.getPrincipal()).thenReturn(userDetails);
-        when(userRepository.findByEmail(user.getEmail())).thenReturn(user);
+        when(authentication.getPrincipal()).thenReturn(securityUser);
+        when(userRepository.findByEmail(user.getEmail())).thenReturn(Optional.of(user));
 
-        User currentUser = securityUserService.getCurrentUser();
+        assertEquals(user, securityUserService.getCurrentUser());
 
-        assertEquals(user, currentUser);
-
+        verify(securityContext).getAuthentication();
+        verify(authentication).getPrincipal();
         verify(userRepository).findByEmail(any());
     }
 
     @Test
-    @DisplayName("when get current user not found then success")
+    @DisplayName("when get current user then not found")
     void testGetCurrentUserNotFound() {
         Authentication authentication = Mockito.mock(Authentication.class);
         SecurityContext securityContext = Mockito.mock(SecurityContext.class);
@@ -129,6 +130,8 @@ class SecurityUserServiceTest {
 
         assertThrows(UserNotFoundException.class, () -> securityUserService.getCurrentUser());
 
+        verify(securityContext).getAuthentication();
+        verify(authentication).getPrincipal();
     }
 
     private Collection<? extends GrantedAuthority> mapRolesToAuthorities(Collection<Role> roles) {

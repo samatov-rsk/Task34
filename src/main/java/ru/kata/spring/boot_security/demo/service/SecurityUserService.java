@@ -40,11 +40,11 @@ public class SecurityUserService implements UserDetailsService {
 
     @Transactional(readOnly = true)
     public User getUser(String email) {
-        User user = userRepository.findByEmail(email);
-        if (user == null) {
+        var user = userRepository.findByEmail(email);
+        if (user.isEmpty()) {
             throw new UserNotFoundException("User not found "+email);
         }
-        return user;
+        return user.get();
     }
 
     private Collection<? extends GrantedAuthority> mapRolesToAuthorities(Collection<Role> roles) {

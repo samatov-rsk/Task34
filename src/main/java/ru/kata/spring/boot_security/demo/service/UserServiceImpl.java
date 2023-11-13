@@ -1,6 +1,5 @@
 package ru.kata.spring.boot_security.demo.service;
 
-import org.hibernate.NonUniqueResultException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,19 +33,13 @@ public class UserServiceImpl implements UserService {
     @Transactional(readOnly = true)
     @Override
     public User getUserById(Integer userId) {
-        return userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("User not found by %s" + userId));
-    }
-
-    public boolean isEmailUnique(String email) {
-        return userRepository.findByEmail(email)==null;
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("User not found by userId: " + userId));
     }
 
     @Transactional
     @Override
     public User addUser(User user) {
-        if (!isEmailUnique(user.getEmail())) {
-            throw new NonUniqueResultException(1);
-        }
         List<Role> userRoles = roleRepository.findAllByNameIn(user.getRoles()
                 .stream()
                 .map(Role::getName)
@@ -58,7 +51,7 @@ public class UserServiceImpl implements UserService {
     @Transactional
     @Override
     public void removeUser(Integer userId) {
-        userRepository.delete(userRepository.getById(userId));
+        userRepository.delete(getUserById(userId));
     }
 
     @Transactional
@@ -73,8 +66,7 @@ public class UserServiceImpl implements UserService {
         List<Role> existingRoles = roleRepository.findAllByNameIn(
                 user.getRoles().stream()
                         .map(Role::getName)
-                        .collect(Collectors.toList())
-        );
+                        .collect(Collectors.toList()));
         userToUpdate.setRoles(existingRoles);
         return userRepository.save(userToUpdate);
     }
