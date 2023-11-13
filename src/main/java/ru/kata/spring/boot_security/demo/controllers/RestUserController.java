@@ -23,10 +23,7 @@ public class RestUserController {
 
     @GetMapping("/api/user")
     public ResponseEntity<User> getCurrentUser(Principal principal) {
-        try {
             return ResponseEntity.ok(securityUserService.getUser(principal.getName()));
-        }catch (UserNotFoundException e){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
     }
+
 }

@@ -26,13 +26,10 @@ public class AdminController {
 
     @GetMapping
     public String getUserPage(Model model, Principal principal) {
-        try {
             User user = securityUserService.getUser(principal.getName());
             model.addAttribute("userEmail", user.getEmail());
             model.addAttribute("userRoles", user.getRoles());
             return "admin";
-        }catch (UserNotFoundException e){
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found", e);
-        }
     }
+
 }

@@ -25,13 +25,10 @@ public class UserController {
 
     @GetMapping("/user")
     public String showUser(Model model, Principal principal) {
-        try {
             User user = securityUserService.getUser(principal.getName());
             model.addAttribute("userEmail", user.getEmail());
             model.addAttribute("userRoles", user.getRoles());
             return "user";
-        } catch (UserNotFoundException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found", e);
-        }
     }
+
 }
