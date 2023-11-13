@@ -203,6 +203,7 @@ public class RestAdminControllerTest extends BaseWeb {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(content().json(json, false));
     }
+
     @Test
     @DisplayName("when request /api/users/about-user then return UserNotFoundException")
     @WithMockUser(username = "admin@mail.ru", password = "test", authorities = "ROLE_ADMIN")

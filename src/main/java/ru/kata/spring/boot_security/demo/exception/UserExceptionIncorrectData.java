@@ -14,4 +14,5 @@ public class UserExceptionIncorrectData {
     public void setInformation(String information) {
         this.information = information;
     }
+
 }

@@ -28,5 +28,4 @@ abstract public class BaseWeb {
     protected UserServiceImpl userService;
 
 
-
 }

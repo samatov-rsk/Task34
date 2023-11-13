@@ -2,9 +2,7 @@ package ru.kata.spring.boot_security.demo.controllers;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.context.annotation.Import;
 import org.springframework.security.test.context.support.WithMockUser;
-import ru.kata.spring.boot_security.demo.configs.SuccessUserHandler;
 import ru.kata.spring.boot_security.demo.exception.UserNotFoundException;
 import ru.kata.spring.boot_security.demo.models.Role;
 import ru.kata.spring.boot_security.demo.models.User;
@@ -19,15 +17,15 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
-public class AdminControllerTest extends BaseWeb{
+public class AdminControllerTest extends BaseWeb {
 
     @Test
     @DisplayName("when request /admin then return user json")
-    @WithMockUser(username = "test", password = "test",authorities = "ROLE_ADMIN")
+    @WithMockUser(username = "test", password = "test", authorities = "ROLE_ADMIN")
     public void testShowUserPage() throws Exception {
 
-        var roles = List.of(new Role(1,"ADMIN"));
-        var user = new User(1,"aaa","sss",24,"aaaa","1000",roles);
+        var roles = List.of(new Role(1, "ADMIN"));
+        var user = new User(1, "aaa", "sss", 24, "aaaa", "1000", roles);
 
         when(securityUserService.getUser(any())).thenReturn(user);
 
@@ -35,13 +33,13 @@ public class AdminControllerTest extends BaseWeb{
                 .andExpect(status().isOk())
                 .andExpect(view().name("admin"));
 
-        assertEquals(user,securityUserService.getUser(user.getEmail()));
+        assertEquals(user, securityUserService.getUser(user.getEmail()));
         verify(securityUserService).getUser(user.getEmail());
     }
 
     @Test
     @DisplayName("when request /admin then return UserNotFoundException")
-    @WithMockUser(username = "test", password = "test",authorities = "ROLE_ADMIN")
+    @WithMockUser(username = "test", password = "test", authorities = "ROLE_ADMIN")
     public void testShowAdminPageNotFound() throws Exception {
 
         when(securityUserService.getUser(any())).thenThrow(new UserNotFoundException("User not found"));

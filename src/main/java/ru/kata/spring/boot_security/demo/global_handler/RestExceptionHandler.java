@@ -23,4 +23,5 @@ public class RestExceptionHandler {
         data.setInformation(exception.getMessage());
         return new ResponseEntity<>(data, HttpStatus.BAD_REQUEST);
     }
+
 }

@@ -16,14 +16,15 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
+
 class UserControllerTest extends BaseWeb {
 
     @Test
     @DisplayName("when request /user then return user page")
-    @WithMockUser(username = "test", password = "test",authorities = "ROLE_USER")
+    @WithMockUser(username = "test", password = "test", authorities = "ROLE_USER")
     public void testShowUserPage() throws Exception {
-        var roles = List.of(new Role(1,"USER"));
-        var user = new User(1,"aaa","sss",24,"aaaa","1000",roles);
+        var roles = List.of(new Role(1, "USER"));
+        var user = new User(1, "aaa", "sss", 24, "aaaa", "1000", roles);
 
         when(securityUserService.getUser(any())).thenReturn(user);
 
@@ -31,13 +32,13 @@ class UserControllerTest extends BaseWeb {
                 .andExpect(status().isOk())
                 .andExpect(view().name("user"));
 
-        assertEquals(user,securityUserService.getUser(user.getEmail()));
+        assertEquals(user, securityUserService.getUser(user.getEmail()));
         verify(securityUserService).getUser(user.getEmail());
     }
 
     @Test
     @DisplayName("when request /user then return UserNotFoundException")
-    @WithMockUser(username = "test", password = "test",authorities = "ROLE_USER")
+    @WithMockUser(username = "test", password = "test", authorities = "ROLE_USER")
     public void testShowUserPageNotFound() throws Exception {
         when(securityUserService.getUser(any())).thenThrow(new UserNotFoundException("User not found"));
 
