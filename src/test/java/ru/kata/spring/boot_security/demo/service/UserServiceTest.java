@@ -91,6 +91,7 @@ class UserServiceTest {
         assertThrows(UserNotFoundException.class, () -> userService.getUserById(user.getId()));
     }
 
+
     @Test
     @DisplayName("when add user then success")
     void testAddUser() {
