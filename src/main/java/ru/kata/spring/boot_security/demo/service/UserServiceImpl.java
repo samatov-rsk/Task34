@@ -1,9 +1,9 @@
 package ru.kata.spring.boot_security.demo.service;
 
+import org.hibernate.NonUniqueResultException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.kata.spring.boot_security.demo.exception.EmailNotUniqueException;
 import ru.kata.spring.boot_security.demo.exception.UserNotFoundException;
 import ru.kata.spring.boot_security.demo.models.Role;
 import ru.kata.spring.boot_security.demo.models.User;
@@ -34,7 +34,8 @@ public class UserServiceImpl implements UserService {
     @Transactional(readOnly = true)
     @Override
     public User getUserById(Integer userId) {
-        return userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("User not found by %s" + userId));
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("User not found by userId: " + userId));
     }
 
     public boolean isEmailUnique(String email) {
@@ -45,7 +46,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public User addUser(User user) {
         if (!isEmailUnique(user.getEmail())) {
-            throw new EmailNotUniqueException("Email is not unique");
+            throw new NonUniqueResultException(1);
         }
         List<Role> userRoles = roleRepository.findAllByNameIn(user.getRoles()
                 .stream()
@@ -58,7 +59,7 @@ public class UserServiceImpl implements UserService {
     @Transactional
     @Override
     public void removeUser(Integer userId) {
-        userRepository.delete(userRepository.getById(userId));
+        userRepository.delete(getUserById(userId));
     }
 
     @Transactional

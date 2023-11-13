@@ -4,11 +4,11 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
-import ru.kata.spring.boot_security.demo.exception.EmailNotUniqueException;
 import ru.kata.spring.boot_security.demo.exception.UserNotFoundException;
 import ru.kata.spring.boot_security.demo.models.Role;
 import ru.kata.spring.boot_security.demo.models.User;
 
+import javax.persistence.NonUniqueResultException;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -112,7 +112,7 @@ public class RestAdminControllerTest extends BaseWeb {
         var user = new User(1, "user", "userov", 20,
                 "existing_user@mail.ru", "test", roles);
 
-        when(userService.addUser(any())).thenThrow(new EmailNotUniqueException("Email not unique"));
+        when(userService.addUser(any())).thenThrow(new NonUniqueResultException("Email not unique"));
 
         String json = objectMapper.writeValueAsString(user);
 
