@@ -9,8 +9,6 @@ import ru.kata.spring.boot_security.demo.models.User;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -20,35 +18,33 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class AdminControllerTest extends BaseWeb {
 
     @Test
-    @DisplayName("when apply request /admin then return user json")
+    @DisplayName("when apply request /admin then return admin page")
     @WithMockUser(username = "test", password = "test", authorities = "ROLE_ADMIN")
     public void testShowUserPage() throws Exception {
 
-        var roles = List.of(new Role(1, "ADMIN"));
-        var user = new User(1, "aaa", "sss", 24, "aaaa", "1000", roles);
+        var roles = List.of(new Role(1, "ROLE_ADMIN"));
+        var user = new User(1, "test", "test", 24, "test", "1000", roles);
 
-        when(securityUserService.getUser(any())).thenReturn(user);
+        when(securityUserService.getUser(user.getEmail())).thenReturn(user);
 
         mockMvc.perform(get("/admin"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("admin"));
 
-        assertEquals(user, securityUserService.getUser(user.getEmail()));
-
         verify(securityUserService).getUser(user.getEmail());
     }
 
     @Test
-    @DisplayName("when request /admin then UserNotFoundException")
+    @DisplayName("when apply request /admin then UserNotFoundException")
     @WithMockUser(username = "test", password = "test", authorities = "ROLE_ADMIN")
     public void testShowAdminPageNotFound() throws Exception {
 
-        when(securityUserService.getUser(any())).thenThrow(new UserNotFoundException("User not found"));
+        when(securityUserService.getUser("test")).thenThrow(new UserNotFoundException("User not found"));
 
         mockMvc.perform(get("/admin"))
                 .andExpect(status().isNotFound());
 
-        verify(securityUserService).getUser(any());
+        verify(securityUserService).getUser("test");
     }
 
 }

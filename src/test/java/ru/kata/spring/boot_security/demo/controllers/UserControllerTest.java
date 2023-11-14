@@ -9,8 +9,6 @@ import ru.kata.spring.boot_security.demo.models.User;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -20,30 +18,31 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class UserControllerTest extends BaseWeb {
 
     @Test
-    @DisplayName("when request /user then return user page")
+    @DisplayName("when apply request /user then return user page")
     @WithMockUser(username = "test", password = "test", authorities = "ROLE_USER")
     public void testShowUserPage() throws Exception {
-        var roles = List.of(new Role(1, "USER"));
-        var user = new User(1, "aaa", "sss", 24, "aaaa", "1000", roles);
+        var roles = List.of(new Role(1, "ROLE_USER"));
+        var user = new User(1, "test", "test", 24, "test", "test", roles);
 
-        when(securityUserService.getUser(any())).thenReturn(user);
+        when(securityUserService.getUser(user.getEmail())).thenReturn(user);
 
         mockMvc.perform(get("/user"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("user"));
 
-        assertEquals(user, securityUserService.getUser(user.getEmail()));
         verify(securityUserService).getUser(user.getEmail());
     }
 
     @Test
-    @DisplayName("when request /user then return UserNotFoundException")
+    @DisplayName("when apply request /user then return UserNotFoundException")
     @WithMockUser(username = "test", password = "test", authorities = "ROLE_USER")
     public void testShowUserPageNotFound() throws Exception {
-        when(securityUserService.getUser(any())).thenThrow(new UserNotFoundException("User not found"));
+        when(securityUserService.getUser("test")).thenThrow(new UserNotFoundException("User not found"));
 
         mockMvc.perform(get("/user"))
                 .andExpect(status().isNotFound());
+
+        verify(securityUserService).getUser("test");
     }
 
 }

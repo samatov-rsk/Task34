@@ -9,7 +9,7 @@ import ru.kata.spring.boot_security.demo.models.User;
 
 import java.util.List;
 
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -18,7 +18,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class RestUserControllerTest extends BaseWeb {
 
     @Test
-    @DisplayName("when request /api/user then return user json")
+    @DisplayName("when apply request /api/user then return user json")
     @WithMockUser(username = "user@mail.ru", password = "test", authorities = "ROLE_USER")
     public void testShowUserPage() throws Exception {
         var roles = List.of(new Role(1, "ROLE_USER"));
@@ -31,17 +31,20 @@ public class RestUserControllerTest extends BaseWeb {
         mockMvc.perform(get("/api/user"))
                 .andExpect(status().isOk())
                 .andExpect(content().json(json, false));
+
+        verify(securityUserService).getUser(user.getEmail());
     }
 
     @Test
-    @DisplayName("when request /api/user then return UserNotFoundException")
+    @DisplayName("when apply request /api/user then return UserNotFoundException")
     @WithMockUser(username = "user@mail.ru", password = "test", authorities = "ROLE_USER")
     public void testShowUserPageNotFound() throws Exception {
-
-        when(securityUserService.getUser(any())).thenThrow(new UserNotFoundException("User not found"));
+        when(securityUserService.getUser("user@mail.ru")).thenThrow(new UserNotFoundException("User not found"));
 
         mockMvc.perform(get("/api/user"))
                 .andExpect(status().isNotFound());
+
+        verify(securityUserService).getUser("user@mail.ru");
     }
 
 }
