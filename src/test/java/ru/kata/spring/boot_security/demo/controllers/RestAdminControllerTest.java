@@ -131,13 +131,14 @@ public class RestAdminControllerTest extends BaseWeb {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json))
                 .andExpect(status().isBadRequest());
+
+        verify(userService).addUser(user);
     }
 
     @Test
-    @DisplayName("when request /api/users/1 for update user then return user json")
+    @DisplayName("when apply request /api/users/1 for update user then return user json")
     @WithMockUser(username = "admin@mail.ru", password = "test", authorities = "ROLE_ADMIN")
     public void testUpdateUserById() throws Exception {
-
         var roles = List.of(new Role(1, "ROLE_USER"));
         var user = new User(1, "admin", "admin", 20,
                 "admin@mail.ru", "test", roles);
@@ -149,13 +150,14 @@ public class RestAdminControllerTest extends BaseWeb {
         mockMvc.perform(put("/api/users/1").contentType(MediaType.APPLICATION_JSON).content(userJson))
                 .andExpect(status().isOk())
                 .andExpect(content().json(userJson));
+
+        verify(userService).updateUserById(user.getId(), user);
     }
 
     @Test
-    @DisplayName("when request /api/users/1 for get user then return exception UserNotFoundException")
+    @DisplayName("when apply request /api/users/1 for update user then return UserNotFoundException")
     @WithMockUser(username = "admin@mail.ru", password = "test", authorities = "ROLE_ADMIN")
     public void testUpdateUserNotFound() throws Exception {
-
         var roles = List.of(new Role(1, "ROLE_USER"));
         var user = new User(1, "admin", "admin", 20,
                 "admin@mail.ru", "test", roles);
@@ -168,10 +170,12 @@ public class RestAdminControllerTest extends BaseWeb {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(userJson))
                 .andExpect(status().isNotFound());
+
+        verify(userService).updateUserById(user.getId(),user);
     }
 
     @Test
-    @DisplayName("when request /api/users/1 for delete user then return user json")
+    @DisplayName("when request /api/users/1 for delete user then success")
     @WithMockUser(username = "admin@mail.ru", password = "test", authorities = "ROLE_ADMIN")
     public void testDeleteUserById() throws Exception {
         var roles = List.of(new Role(1, "ROLE_USER"));
@@ -185,6 +189,8 @@ public class RestAdminControllerTest extends BaseWeb {
 
         mockMvc.perform(delete("/api/users/1").contentType(MediaType.APPLICATION_JSON).content(json))
                 .andExpect(status().isNoContent());
+
+        verify(userService).removeUser(user.getId());
     }
 
     @Test
@@ -196,6 +202,8 @@ public class RestAdminControllerTest extends BaseWeb {
 
         mockMvc.perform(delete("/api/users/99").contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
+
+        verify(userService).removeUser(99);
     }
 
     @Test
@@ -215,6 +223,8 @@ public class RestAdminControllerTest extends BaseWeb {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(content().json(json, false));
+
+        verify(securityUserService).getCurrentUser();
     }
 
     @Test
@@ -226,5 +236,7 @@ public class RestAdminControllerTest extends BaseWeb {
 
         mockMvc.perform(get("/api/users/about-user").contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
+
+        verify(securityUserService).getCurrentUser();
     }
 }
