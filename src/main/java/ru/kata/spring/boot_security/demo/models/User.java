@@ -9,6 +9,7 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 import java.util.List;
+import java.util.Objects;
 
 import static javax.persistence.CascadeType.MERGE;
 import static javax.persistence.FetchType.EAGER;
@@ -29,7 +30,7 @@ public class User {
     @Column(name = "surname")
     private String surname;
 
-    @Column(name = "email", unique = true)
+    @Column(name = "email", unique = true, length = 32)
     private String email;
 
     @Column(name = "age")
@@ -45,6 +46,15 @@ public class User {
     private List<Role> roles;
 
     public User() {
+    }
+
+    public User(String username, String surname, String email, int age, String password, List<Role> roles) {
+        this.username = username;
+        this.surname = surname;
+        this.email = email;
+        this.age = age;
+        this.password = password;
+        this.roles = roles;
     }
 
     public User(Integer id, String username, String surname, int age, String email, String password, List<Role> roles) {
@@ -111,6 +121,19 @@ public class User {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        User user = (User) o;
+        return Objects.equals(id, user.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 
     @Override
