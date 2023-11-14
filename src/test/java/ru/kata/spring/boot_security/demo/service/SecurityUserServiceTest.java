@@ -16,7 +16,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import ru.kata.spring.boot_security.demo.exception.UserNotFoundException;
 import ru.kata.spring.boot_security.demo.models.Role;
 import ru.kata.spring.boot_security.demo.models.User;
-import ru.kata.spring.boot_security.demo.repositiory.UserRepository;
+import ru.kata.spring.boot_security.demo.repository.UserRepository;
 
 import java.util.Collection;
 import java.util.List;
