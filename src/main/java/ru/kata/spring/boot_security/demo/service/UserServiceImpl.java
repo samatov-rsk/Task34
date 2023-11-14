@@ -6,8 +6,8 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.kata.spring.boot_security.demo.exception.UserNotFoundException;
 import ru.kata.spring.boot_security.demo.models.Role;
 import ru.kata.spring.boot_security.demo.models.User;
-import ru.kata.spring.boot_security.demo.repositiories.RoleRepository;
-import ru.kata.spring.boot_security.demo.repositiories.UserRepository;
+import ru.kata.spring.boot_security.demo.repository.RoleRepository;
+import ru.kata.spring.boot_security.demo.repository.UserRepository;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -50,7 +50,7 @@ public class UserServiceImpl implements UserService {
     @Transactional
     @Override
     public void removeUser(Integer userId) {
-        userRepository.delete(userRepository.getById(userId));
+        userRepository.deleteById(userId);
     }
 
     @Transactional
