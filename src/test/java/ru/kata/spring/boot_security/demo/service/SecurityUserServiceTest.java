@@ -39,7 +39,7 @@ class SecurityUserServiceTest {
     private SecurityUserService securityUserService;
 
     @Test
-    @DisplayName("when load user by Email then success")
+    @DisplayName("when called loadUserByUsername then success")
     void testLoadUserByUsername() {
         var roles = List.of(new Role(1, "USER"), new Role(2, "ADMIN"));
         var user = new User(
@@ -59,7 +59,7 @@ class SecurityUserServiceTest {
     }
 
     @Test
-    @DisplayName("when load user by Email then Not found")
+    @DisplayName("when called loadUserByUsername then UserNotFoundException")
     void testLoadUserByUsernameWhenUserNotFound() {
         var roles = List.of(new Role(1, "USER"), new Role(2, "ADMIN"));
         var user = new User(1, "milatik", "samatop", 28, "halfmsk@gmail.com", "12345", roles);
@@ -67,10 +67,12 @@ class SecurityUserServiceTest {
         when(userRepository.findByEmail(user.getEmail())).thenReturn(Optional.empty());
 
         assertThrows(UserNotFoundException.class,()-> securityUserService.loadUserByUsername(user.getEmail()));
+
+        verify(userRepository).findByEmail(user.getEmail());
     }
 
     @Test
-    @DisplayName("when get user then success")
+    @DisplayName("when called getUser then success")
     void testGetUser() {
         var roles = List.of(new Role(1, "USER"), new Role(2, "ADMIN"));
         var user = new User(1, "milatik", "samatop", 28, "halfmsk@gmail.com", "12345", roles);
@@ -83,7 +85,7 @@ class SecurityUserServiceTest {
     }
 
     @Test
-    @DisplayName("when get user then not found")
+    @DisplayName("when called getUser then UserNotFoundException")
     void testGetUserNotFound() {
 
         when(userRepository.findByEmail("abc")).thenReturn(Optional.empty());
@@ -94,7 +96,7 @@ class SecurityUserServiceTest {
     }
 
     @Test
-    @DisplayName("when get current user then success")
+    @DisplayName("when called getCurrent then success")
     void testGetCurrentUser() {
         var roles = List.of(new Role(1, "USER"), new Role(2, "ADMIN"));
         var user = new User(1, "milatik", "samatop", 28, "halfmsk@gmail.com", "12345", roles);
@@ -118,7 +120,7 @@ class SecurityUserServiceTest {
     }
 
     @Test
-    @DisplayName("when get current user then not found")
+    @DisplayName("when called getCurrent then UserNotFoundException")
     void testGetCurrentUserNotFound() {
         Authentication authentication = Mockito.mock(Authentication.class);
         SecurityContext securityContext = Mockito.mock(SecurityContext.class);

@@ -31,7 +31,7 @@ class UserServiceTest {
     private UserServiceImpl userService;
 
     @Test
-    @DisplayName("when get all users then success")
+    @DisplayName("when called getAllUsers then success")
     void testGetAllUsers() {
         var roles = List.of(new Role(1, "USER"), new Role(2, "ADMIN"));
         var user1 = new User(1, "ruslen", "samatov", 25, "samativ@mail.ru", "passsss", roles);
@@ -50,7 +50,7 @@ class UserServiceTest {
     }
 
     @Test
-    @DisplayName("when get all users then Not found")
+    @DisplayName("when called getAllUsers then return empty list")
     void testGetUsersNotFound() {
 
         when(userRepository.findAll()).thenReturn(List.of());
@@ -62,7 +62,7 @@ class UserServiceTest {
     }
 
     @Test
-    @DisplayName("when get User by Id then success")
+    @DisplayName("when called getUserById then success")
     void testGetUserById() {
         var roles = List.of(new Role(1, "USER"), new Role(2, "ADMIN"));
         var user = new User(1, "ruslen", "samativ", 25, "samativ@mail.ru", "passsss", roles);
@@ -77,7 +77,7 @@ class UserServiceTest {
     }
 
     @Test
-    @DisplayName("when get User by Id then Not found")
+    @DisplayName("when called getUserById then UserNotFoundException")
     void testGetUserByIdWhenUserNotFound() {
         var roles = List.of(new Role(1, "USER"), new Role(2, "ADMIN"));
         var user = new User(5, "ruslen", "samativ", 25, "samativ@mail.ru", "passsss", roles);
@@ -90,7 +90,7 @@ class UserServiceTest {
     }
 
     @Test
-    @DisplayName("when add user then success")
+    @DisplayName("when called addUser then success")
     void testAddUser() {
         var roles = List.of(new Role(1, "USER"), new Role(2, "ADMIN"));
         var expected = new User(1, "ruslen", "samativ", 25, "samativ@mail.ru", "passsss", roles);
@@ -109,35 +109,30 @@ class UserServiceTest {
     }
 
     @Test
-    @DisplayName("when remove user then success")
+    @DisplayName("when called removeUser then success")
     void testRemoveUser() {
         var roles = List.of(new Role(1, "USER"), new Role(2, "ADMIN"));
         var expected = new User(1, "ruslen", "samativ", 25, "samativ@mail.ru", "passsss", roles);
 
-        when(userRepository.findById(expected.getId())).thenReturn(Optional.of(expected));
+        doNothing().when(userRepository).deleteById(expected.getId());
 
         userService.removeUser(expected.getId());
 
-        verify(userRepository).findById(expected.getId());
-        verify(userRepository).delete(expected);
+        verify(userRepository).deleteById(expected.getId());
     }
 
     @Test
-    @DisplayName("when remove user then not found userId")
+    @DisplayName("when called removeUser then UserNotFoundException")
     void testRemoveUserWhenNotFoundUserId() {
-        var roles = List.of(new Role(1, "USER"), new Role(2, "ADMIN"));
-        var expected = new User(1, "ruslen", "samativ", 25, "samativ@mail.ru", "passsss", roles);
+        doThrow(new UserNotFoundException("User not found ")).when(userRepository).deleteById(1);
 
-        when(userRepository.findById(expected.getId())).thenThrow(new UserNotFoundException("User not found"));
+        assertThrows(UserNotFoundException.class, () -> userService.removeUser(1));
 
-        assertThrows(UserNotFoundException.class, () -> userService.removeUser(expected.getId()));
-
-        verify(userRepository).findById(expected.getId());
-        verify(userRepository,never()).delete(expected);
+        verify(userRepository).deleteById(1);
     }
 
     @Test
-    @DisplayName("when update user then success")
+    @DisplayName("when called updateUser then success")
     void testUpdateUserById() {
         var roles = List.of(new Role(1, "USER"), new Role(2, "ADMIN"));
         var expected = new User(1, "ruslen", "samativ", 25, "samativ@mail.ru", "passsss", roles);
@@ -158,7 +153,7 @@ class UserServiceTest {
     }
 
     @Test
-    @DisplayName("when update user then not found userId")
+    @DisplayName("when called updateUser then UserNotFoundException")
     void testUpdateUserWhenNotFoundUserId() {
         var roles = List.of(new Role(1, "USER"), new Role(2, "ADMIN"));
         var expected = new User(5, "ruslen", "samativ", 25, "samativ@mail.ru", "passsss", roles);
