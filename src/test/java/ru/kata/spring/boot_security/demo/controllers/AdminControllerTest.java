@@ -20,7 +20,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class AdminControllerTest extends BaseWeb {
 
     @Test
-    @DisplayName("when request /admin then return user json")
+    @DisplayName("when apply request /admin then return user json")
     @WithMockUser(username = "test", password = "test", authorities = "ROLE_ADMIN")
     public void testShowUserPage() throws Exception {
 
@@ -34,11 +34,12 @@ public class AdminControllerTest extends BaseWeb {
                 .andExpect(view().name("admin"));
 
         assertEquals(user, securityUserService.getUser(user.getEmail()));
+
         verify(securityUserService).getUser(user.getEmail());
     }
 
     @Test
-    @DisplayName("when request /admin then return UserNotFoundException")
+    @DisplayName("when request /admin then UserNotFoundException")
     @WithMockUser(username = "test", password = "test", authorities = "ROLE_ADMIN")
     public void testShowAdminPageNotFound() throws Exception {
 
@@ -47,5 +48,7 @@ public class AdminControllerTest extends BaseWeb {
         mockMvc.perform(get("/admin"))
                 .andExpect(status().isNotFound());
 
+        verify(securityUserService).getUser(any());
     }
+
 }

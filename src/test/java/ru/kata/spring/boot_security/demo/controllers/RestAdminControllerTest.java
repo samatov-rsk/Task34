@@ -20,7 +20,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class RestAdminControllerTest extends BaseWeb {
 
     @Test
-    @DisplayName("when request /api/users for get all users then return users json")
+    @DisplayName("when apply request /api/users then return all users json")
     @WithMockUser(username = "admin@mail.ru", password = "test", authorities = "ROLE_ADMIN")
     public void testGetAllUser() throws Exception {
 
@@ -40,10 +40,12 @@ public class RestAdminControllerTest extends BaseWeb {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(content().json(json, false));
+
+        verify(userService).getAllUsers();
     }
 
     @Test
-    @DisplayName("when request /api/users for get all users not found then return empty list")
+    @DisplayName("when apply request /api/users then return empty list")
     @WithMockUser(username = "admin@mail.ru", password = "test", authorities = "ROLE_ADMIN")
     public void testGetAllUserNotFound() throws Exception {
 
@@ -57,10 +59,12 @@ public class RestAdminControllerTest extends BaseWeb {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(content().json(json, false));
+
+        verify(userService).getAllUsers();
     }
 
     @Test
-    @DisplayName("when request /api/users/1 for get user then return user json")
+    @DisplayName("when apply request /api/users/{userId} then return user with {userId} json")
     @WithMockUser(username = "admin@mail.ru", password = "test", authorities = "ROLE_ADMIN")
     public void testGetUser() throws Exception {
         var roles = List.of(new Role(1, "ROLE_USER"));
@@ -68,16 +72,19 @@ public class RestAdminControllerTest extends BaseWeb {
                 "user@mail.ru", "test", roles);
 
         when(userService.getUserById(user.getId())).thenReturn(user);
+
         String json = objectMapper.writeValueAsString(user);
 
         mockMvc.perform(get("/api/users/1").contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(content().json(json, false));
+
+        verify(userService).getUserById(user.getId());
     }
 
     @Test
-    @DisplayName("when request /api/users/1 for get user then return UserNotFoundException")
+    @DisplayName("when apply request /api/users/99 then return UserNotFoundException")
     @WithMockUser(username = "admin@mail.ru", password = "test", authorities = "ROLE_ADMIN")
     public void testGetUserNotFound() throws Exception {
 
@@ -85,38 +92,44 @@ public class RestAdminControllerTest extends BaseWeb {
 
         mockMvc.perform(get("/api/users/99"))
                 .andExpect(status().isNotFound());
+
+        verify(userService).getUserById(99);
     }
 
     @Test
-    @DisplayName("when request /api/users for add user then return user json")
+    @DisplayName("when apply request /api/users for add user then return user json")
     @WithMockUser(username = "admin@mail.ru", password = "test", authorities = "ROLE_ADMIN")
     public void testAddUser() throws Exception {
         var roles = List.of(new Role(1, "ROLE_USER"));
         var user = new User(1, "user", "userov", 20,
                 "user@mail.ru", "test", roles);
 
-        when(userService.addUser(user)).thenReturn(any());
+        when(userService.addUser(user)).thenReturn(user);
 
         String json = objectMapper.writeValueAsString(user);
 
         mockMvc.perform(post("/api/users").contentType(MediaType.APPLICATION_JSON).content(
                         json))
                 .andExpect(status().isOk());
+
+        verify(userService).addUser(user);
     }
 
     @Test
-    @DisplayName("when request /api/users for add user with non-unique email then return NonUniqueException")
+    @DisplayName("when apply request /api/users for add user with non-unique email then return NonUniqueException")
     @WithMockUser(username = "admin@mail.ru", password = "test", authorities = "ROLE_ADMIN")
     public void testAddUserNonUniqueEmail() throws Exception {
         var roles = List.of(new Role(1, "ROLE_USER"));
         var user = new User(1, "user", "userov", 20,
                 "existing_user@mail.ru", "test", roles);
 
-        when(userService.addUser(any())).thenThrow(new NonUniqueResultException("Email not unique"));
+        when(userService.addUser(user)).thenThrow(new NonUniqueResultException("Email not unique"));
 
         String json = objectMapper.writeValueAsString(user);
 
-        mockMvc.perform(post("/api/users").contentType(MediaType.APPLICATION_JSON).content(json))
+        mockMvc.perform(post("/api/users")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json))
                 .andExpect(status().isBadRequest());
     }
 
