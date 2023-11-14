@@ -1,13 +1,6 @@
 package ru.kata.spring.boot_security.demo.models;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.util.List;
 import java.util.Objects;
 
@@ -30,7 +23,7 @@ public class User {
     @Column(name = "surname")
     private String surname;
 
-    @Column(name = "email", unique = true)
+    @Column(name = "email", unique = true, length = 32)
     private String email;
 
     @Column(name = "age")
