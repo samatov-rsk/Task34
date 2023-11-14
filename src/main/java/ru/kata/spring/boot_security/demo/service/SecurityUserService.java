@@ -38,8 +38,8 @@ public class SecurityUserService implements UserDetailsService {
     @Transactional(readOnly = true)
     public User getUser(String email) {
         var user = userRepository.findByEmail(email);
-        if (user.isPresent()) {
-            throw new UserNotFoundException("User not found"+email);
+        if (user.isEmpty()) {
+            throw new UserNotFoundException("User not found "+email);
         }
         return user.get();
     }

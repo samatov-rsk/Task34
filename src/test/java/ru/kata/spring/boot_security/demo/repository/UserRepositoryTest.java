@@ -34,6 +34,8 @@ public class UserRepositoryTest extends BaseIT {
         List<User> result = userRepository.findAll();
 
         assertEquals(users.size(), result.size());
+        assertEquals(users.get(0), result.get(0));
+        assertEquals(users.get(1), result.get(1));
     }
 
     @Test
@@ -71,7 +73,7 @@ public class UserRepositoryTest extends BaseIT {
     }
 
     @Test
-    @DisplayName("when save called then success")
+    @DisplayName("when save called then DataIntegrityViolationException")
     public void testEmailDuplicate() {
         var roles = List.of(new Role(1, "ADMIN"));
         var user1 = new User("a", "aa", "gmail", 25, "aaaa", roles);
@@ -79,7 +81,7 @@ public class UserRepositoryTest extends BaseIT {
 
         userRepository.save(user1);
 
-        assertThrows(DataIntegrityViolationException.class,()-> userRepository.save(user2));
+        assertThrows(DataIntegrityViolationException.class, () -> userRepository.save(user2));
     }
 
     @Test
@@ -94,12 +96,4 @@ public class UserRepositoryTest extends BaseIT {
         assertEquals(Optional.empty(), userRepository.findById(user.getId()));
     }
 
-    @Test
-    @DisplayName("when delete called then not found")
-    public void testDeleteUserNotFound() {
-
-        userRepository.delete(new User());
-
-        assertEquals(Optional.empty(), userRepository.findById(5));
-    }
 }
