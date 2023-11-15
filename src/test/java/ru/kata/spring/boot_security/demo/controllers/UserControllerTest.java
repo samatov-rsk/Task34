@@ -9,6 +9,7 @@ import ru.kata.spring.boot_security.demo.models.User;
 
 import java.util.List;
 
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -24,7 +25,7 @@ class UserControllerTest extends BaseWeb {
         var roles = List.of(new Role(1, "ROLE_USER"));
         var user = new User(1, "test", "test", 24, "test", "test", roles);
 
-        when(securityUserService.getUser(user.getEmail())).thenReturn(user);
+        when(securityUserService.getUser(anyString())).thenReturn(user);
 
         mockMvc.perform(get("/user"))
                 .andExpect(status().isOk())
@@ -37,7 +38,7 @@ class UserControllerTest extends BaseWeb {
     @DisplayName("when apply request /user then return UserNotFoundException")
     @WithMockUser(username = "test", password = "test", authorities = "ROLE_USER")
     public void testShowUserPageNotFound() throws Exception {
-        when(securityUserService.getUser("test")).thenThrow(new UserNotFoundException("User not found"));
+        when(securityUserService.getUser(anyString())).thenThrow(new UserNotFoundException("User not found"));
 
         mockMvc.perform(get("/user"))
                 .andExpect(status().isNotFound());
