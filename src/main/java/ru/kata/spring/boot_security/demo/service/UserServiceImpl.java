@@ -51,7 +51,7 @@ public class UserServiceImpl implements UserService {
     @Transactional
     @Override
     public void removeUser(Integer userId) {
-        userRepository.delete(getUserById(userId));
+        userRepository.deleteById(userId);
     }
 
     @Transactional
@@ -66,8 +66,7 @@ public class UserServiceImpl implements UserService {
         List<Role> existingRoles = roleRepository.findAllByNameIn(
                 user.getRoles().stream()
                         .map(Role::getName)
-                        .collect(Collectors.toList())
-        );
+                        .collect(Collectors.toList()));
         userToUpdate.setRoles(existingRoles);
         return userRepository.save(userToUpdate);
     }

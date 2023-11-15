@@ -30,7 +30,7 @@ public class User {
     @Column(name = "surname")
     private String surname;
 
-    @Column(name = "email")
+    @Column(name = "email", unique = true, length = 32)
     private String email;
 
     @Column(name = "age")
@@ -46,6 +46,15 @@ public class User {
     private List<Role> roles;
 
     public User() {
+    }
+
+    public User(String username, String surname, String email, int age, String password, List<Role> roles) {
+        this.username = username;
+        this.surname = surname;
+        this.email = email;
+        this.age = age;
+        this.password = password;
+        this.roles = roles;
     }
 
     public User(Integer id, String username, String surname, int age, String email, String password, List<Role> roles) {
@@ -126,7 +135,6 @@ public class User {
     public int hashCode() {
         return Objects.hash(id);
     }
-
 
     @Override
     public String toString() {
