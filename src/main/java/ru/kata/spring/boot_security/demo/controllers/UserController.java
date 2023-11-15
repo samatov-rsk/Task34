@@ -4,8 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import ru.kata.spring.boot_security.demo.service.SecurityUserService;
 import ru.kata.spring.boot_security.demo.models.User;
+import ru.kata.spring.boot_security.demo.service.SecurityUserService;
 
 import java.security.Principal;
 
@@ -21,9 +21,10 @@ public class UserController {
 
     @GetMapping("/user")
     public String showUser(Model model, Principal principal) {
-        User user = securityUserService.getUser(principal.getName());
-        model.addAttribute("userEmail", user.getEmail());
-        model.addAttribute("userRoles", user.getRoles());
-        return "user";
+            User user = securityUserService.getUser(principal.getName());
+            model.addAttribute("userEmail", user.getEmail());
+            model.addAttribute("userRoles", user.getRoles());
+            return "user";
     }
+
 }
