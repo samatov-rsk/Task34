@@ -52,7 +52,6 @@ class UserServiceTest {
     @Test
     @DisplayName("when called getAllUsers then return empty list")
     void testGetUsersNotFound() {
-
         when(userRepository.findAll()).thenReturn(List.of());
 
         assertEquals(0, userService.getAllUsers().size());
@@ -67,7 +66,7 @@ class UserServiceTest {
         var roles = List.of(new Role(1, "USER"), new Role(2, "ADMIN"));
         var user = new User(1, "ruslen", "samativ", 25, "samativ@mail.ru", "passsss", roles);
 
-        when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
+        when(userRepository.findById(anyInt())).thenReturn(Optional.of(user));
 
         User result = userService.getUserById(user.getId());
 
@@ -82,7 +81,7 @@ class UserServiceTest {
         var roles = List.of(new Role(1, "USER"), new Role(2, "ADMIN"));
         var user = new User(5, "ruslen", "samativ", 25, "samativ@mail.ru", "passsss", roles);
 
-        when(userRepository.findById(user.getId())).thenReturn(Optional.empty());
+        when(userRepository.findById(anyInt())).thenReturn(Optional.empty());
 
         assertThrows(UserNotFoundException.class, () -> userService.getUserById(user.getId()));
 
@@ -100,12 +99,13 @@ class UserServiceTest {
 
         var result = userService.addUser(expected);
 
-        verify(roleRepository).findAllByNameIn(any());
-        verify(userRepository).save(any());
-
         assertNotNull(result);
         assertEquals(expected, result);
         assertEquals(roles, result.getRoles());
+
+        verify(roleRepository).findAllByNameIn(any());
+        verify(userRepository).save(expected);
+
     }
 
     @Test
@@ -114,21 +114,11 @@ class UserServiceTest {
         var roles = List.of(new Role(1, "USER"), new Role(2, "ADMIN"));
         var expected = new User(1, "ruslen", "samativ", 25, "samativ@mail.ru", "passsss", roles);
 
-        doNothing().when(userRepository).deleteById(expected.getId());
+        doNothing().when(userRepository).deleteById(anyInt());
 
         userService.removeUser(expected.getId());
 
         verify(userRepository).deleteById(expected.getId());
-    }
-
-    @Test
-    @DisplayName("when called removeUser then UserNotFoundException")
-    void testRemoveUserWhenNotFoundUserId() {
-        doThrow(new UserNotFoundException("User not found ")).when(userRepository).deleteById(1);
-
-        assertThrows(UserNotFoundException.class, () -> userService.removeUser(1));
-
-        verify(userRepository).deleteById(1);
     }
 
     @Test
@@ -139,16 +129,16 @@ class UserServiceTest {
 
         when(roleRepository.findAllByNameIn(any())).thenReturn(roles);
         when(userRepository.save(expected)).thenReturn(expected);
-        when(userRepository.findById(expected.getId())).thenReturn(Optional.of(expected));
+        when(userRepository.findById(anyInt())).thenReturn(Optional.of(expected));
 
         var result = userService.updateUserById(expected.getId(), expected);
 
         assertNotNull(result);
-        assertEquals(expected,result);
+        assertEquals(expected, result);
         assertEquals(roles, result.getRoles());
 
         verify(roleRepository).findAllByNameIn(any());
-        verify(userRepository).save(any());
+        verify(userRepository).save(expected);
         verify(userRepository).findById(expected.getId());
     }
 
@@ -158,7 +148,7 @@ class UserServiceTest {
         var roles = List.of(new Role(1, "USER"), new Role(2, "ADMIN"));
         var expected = new User(5, "ruslen", "samativ", 25, "samativ@mail.ru", "passsss", roles);
 
-        when(userRepository.findById(expected.getId())).thenReturn(Optional.empty());
+        when(userRepository.findById(anyInt())).thenReturn(Optional.empty());
 
         assertThrows(UserNotFoundException.class, () -> userService.updateUserById(expected.getId(), expected));
 

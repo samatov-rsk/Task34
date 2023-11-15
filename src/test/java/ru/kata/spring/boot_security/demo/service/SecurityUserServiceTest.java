@@ -23,10 +23,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -44,18 +41,16 @@ class SecurityUserServiceTest {
         var roles = List.of(new Role(1, "USER"), new Role(2, "ADMIN"));
         var user = new User(
                 1, "milatik", "samatop", 28, "halfmsk@gmail.com", "12345", roles);
-        var userDetails =
-                new org.springframework.security.core.userdetails.
-                        User(user.getEmail(), user.getPassword(), mapRolesToAuthorities(user.getRoles()));
+        var userDetails = new org.springframework.security.core.userdetails.User(user.getEmail(), user.getPassword(), mapRolesToAuthorities(user.getRoles()));
 
-        when(userRepository.findByEmail(user.getEmail())).thenReturn(Optional.of(user));
+        when(userRepository.findByEmail(anyString())).thenReturn(Optional.of(user));
 
         UserDetails result = securityUserService.loadUserByUsername(user.getEmail());
 
         assertNotNull(result);
         assertEquals(userDetails, result);
 
-        verify(userRepository).findByEmail(any());
+        verify(userRepository).findByEmail(user.getEmail());
     }
 
     @Test
@@ -64,9 +59,9 @@ class SecurityUserServiceTest {
         var roles = List.of(new Role(1, "USER"), new Role(2, "ADMIN"));
         var user = new User(1, "milatik", "samatop", 28, "halfmsk@gmail.com", "12345", roles);
 
-        when(userRepository.findByEmail(user.getEmail())).thenReturn(Optional.empty());
+        when(userRepository.findByEmail(anyString())).thenReturn(Optional.empty());
 
-        assertThrows(UserNotFoundException.class,()-> securityUserService.loadUserByUsername(user.getEmail()));
+        assertThrows(UserNotFoundException.class, () -> securityUserService.loadUserByUsername(user.getEmail()));
 
         verify(userRepository).findByEmail(user.getEmail());
     }
@@ -77,18 +72,18 @@ class SecurityUserServiceTest {
         var roles = List.of(new Role(1, "USER"), new Role(2, "ADMIN"));
         var user = new User(1, "milatik", "samatop", 28, "halfmsk@gmail.com", "12345", roles);
 
-        when(userRepository.findByEmail(user.getEmail())).thenReturn(Optional.of(user));
+        when(userRepository.findByEmail(anyString())).thenReturn(Optional.of(user));
 
         assertEquals(user, securityUserService.getUser(user.getEmail()));
 
-        verify(userRepository).findByEmail(any());
+        verify(userRepository).findByEmail(user.getEmail());
     }
 
     @Test
     @DisplayName("when called getUser then UserNotFoundException")
     void testGetUserNotFound() {
 
-        when(userRepository.findByEmail("abc")).thenReturn(Optional.empty());
+        when(userRepository.findByEmail(anyString())).thenReturn(Optional.empty());
 
         assertThrows(UserNotFoundException.class, () -> securityUserService.getUser("abc"));
 
@@ -100,8 +95,7 @@ class SecurityUserServiceTest {
     void testGetCurrentUser() {
         var roles = List.of(new Role(1, "USER"), new Role(2, "ADMIN"));
         var user = new User(1, "milatik", "samatop", 28, "halfmsk@gmail.com", "12345", roles);
-        var securityUser = new org.springframework.security.core.userdetails
-                .User(user.getEmail(), user.getPassword(), mapRolesToAuthorities(user.getRoles()));
+        var securityUser = new org.springframework.security.core.userdetails.User(user.getEmail(), user.getPassword(), mapRolesToAuthorities(user.getRoles()));
 
         Authentication authentication = Mockito.mock(Authentication.class);
         SecurityContext securityContext = Mockito.mock(SecurityContext.class);
@@ -110,13 +104,13 @@ class SecurityUserServiceTest {
 
         when(securityContext.getAuthentication()).thenReturn(authentication);
         when(authentication.getPrincipal()).thenReturn(securityUser);
-        when(userRepository.findByEmail(user.getEmail())).thenReturn(Optional.of(user));
+        when(userRepository.findByEmail(anyString())).thenReturn(Optional.of(user));
 
         assertEquals(user, securityUserService.getCurrentUser());
 
         verify(securityContext).getAuthentication();
         verify(authentication).getPrincipal();
-        verify(userRepository).findByEmail(any());
+        verify(userRepository).findByEmail(user.getEmail());
     }
 
     @Test
